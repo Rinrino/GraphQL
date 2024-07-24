@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css"> 
+  <title>01 GraphQL</title>
+</head>
+<body>
+  <div class="login-container" id="loginContainer">
+    <h1>Login</h1>
+    <form >
+      <input type="text" id="username" placeholder="Enter Username or Email" name="username" required >
+  
+      <input type="password" id="password" placeholder="Enter Password" name="password" required >
+        
+      <button type="button" onclick="login()">Login</button>
+  <!--     <label>
+         <input type="checkbox" id="remember-me" name="rememberMe">Remember Me
+      </label> -->
+    </form>
+   
+    <p id="error" class="error-message"></p>
+  </div>
+  
+  <div class="container" id="dashboardContainer" style="display:none;">
+    
+    <div class="left-section">
+       <!-- user Info -->
+       <div id="user-info"  class="card-user" >
+          <div class="mini-card">
+            <h2><span id="fullName"></span></h2>
+            <li>Login: <span id="login"></span></li>
+            <li>ID: <span id="userId"></span></li>
+            <li>Student ID: <span id="stdId"></span></li>
+            <li>Campus: <span id="campus"></span></li>
+            <li>Joined: <span id="createdAt"></span></li>
+          </div>
+          
+          <!-- on progress info-->
+          <div class="mini-card">
+            <h4 class="bb-01">Currently working on</h4>
+            <li><span class="f-md3" id="latest_Project"></span></li>
+            <li><span id="members"></span></li>
+            <h4>since<span class="f-md1" id="duration"></span>, keep going!</h4>
+          </div>
+        
+         <!-- audit ratio Info-->
+      <!--   <div id="audit-info" >
+          <h1 class="audit-ratio-value f-md"><span id="auditRatio"></span></h1>
+          <h2 class="bb-01">Audits ratio</h2>
+          <li>Done: <span id="totalUp"></span></li>
+          <li>Received: <span id="totalDown"></span></li>
+        </div> -->
+      </div>
+      <div class="logout-button">
+        <button type="button" onclick="logout()">Logout</button>
+      </div>
+    </div>
+    
+    <div class="right-section">
+        <!-- header -->
+      <div class="header">
+          <h1>Welcome to Your Dashboard, <span id="userLoginName"></span></h1>
+      </div>
+      
+      <!-- Top Section -->
+      <div class="dashboard-section" id="topSection">
+       
+        
+        <!-- XP Info-->
+        <div id="xp-info" class="card">
+          <h2><span id="totalXp" class="f-md"> XP</span></h2>
+          <h3 class="bb-01">Last activity</h3>
+        </div>
+        
+        <!-- audit ratio Info-->
+        <div id="audit-info" class="card">
+          <div class="audit-header">
+            <h2 class="bb-01">Audits ratio</h2>
+          </div>
+          <div class="audit-content-container">
+            <div class="audit-left" id="audit-left">
+              <div id="done-container" class="svg-container">
+                <svg id="done-svg" width="100%" role="img" aria-label="done-icon">
+                </svg>
+              </div>
+              <div id="received-container" class="svg-container">
+                <svg id="received-svg"  width="100%" role="img" aria-label="received-icon">
+                </svg>
+              </div>
+            </div>
+            <div class="audit-right">
+              <div class="audit-content">
+                <div>
+                  <span id="totalUp"></span>
+                </div>
+                <div class="arrow-svg-container">
+                  <div>Done</div>
+                  <div>↑</div>
+                </div>
+              </div>
+              
+              <div class="audit-content">
+                <div class="arrow-svg-container">
+                  <div>Received</div>
+                  <div>↓</div>
+                </div>
+                <div>
+                  <span id="totalDown"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h1 class="audit-ratio-value f-md"><span id="auditRatio"></span></h1>
+          </div>
+        </div>
+        <div class="push"></div>
+      </div>
+      
+      <!-- Bottom Section -->
+      <div class="dashboard-section" id="bottomSection">
+        <!-- xp line chart-->
+        <div id="xp-progress-chart" class="large-card">
+          <div class="chart-header">
+            <div class="f-md2"><h2>XP progression</h2></div>
+          </div>
+          <svg id="lineChart" width="100%"></svg>
+        </div>
+        <!-- xp bar chart-->
+        <div id="barChartContainer" class="large-card">
+          <div class="chart-header">
+            <div class="f-md2">XP Earned By Project</div>
+            <div class="selection-label">
+              <div>
+                <label>language</label>
+                <select class="graph-display-name" data-default="js">
+                  <option value="js">Javascript</option>
+                  <option value="go-projects">Go</option>
+                </select>
+              </div>
+              <div>
+                <label>order</label>
+                <select class="graph-display-name" data-default="Descendling">
+                  <option value="alphabatical">alphabatical</option>
+                  <option value="descendling">Descendling</option>
+                  <option value="ascendling">Ascendling</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <svg id="barChart" width="100%"></svg>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+  
+  <script  src="App.js"></script>
+  <!-- library for svg -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</body>
+</html>
