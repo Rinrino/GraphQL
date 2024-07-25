@@ -15,7 +15,6 @@
   --grey-3: rgb(164, 150, 150);
   --grey-4: rgb(95, 95, 95);
   --grey-5: rgb(100, 100, 100);
-
   /* black */
   --black-0: rgba(40, 40, 40, 80);
   --black-1: rgba(40, 40, 40, 50);
@@ -35,6 +34,12 @@
   --green-1: rgb(17 144 163);
   --green-2: rgb(14 109 124);
   --green-3: #176267;
+  
+  /* blue */
+  --blue-0: #1660aa;
+  --blue-1: rgb(17, 24, 163);
+  --blue-2: rgb(11, 7, 81);   
+    
   /* purple */
   --purple-purp: rgb(106 88 175);
   --purple-pink: rgb(210, 44, 194);
@@ -147,9 +152,16 @@ body {
 }
 
 .card-user{
+  margin: 0;
   display: flex;
   flex-direction: column;
-  flex-wrap: wrap;
+  align-items: center;
+  overflow: none;
+}
+
+#userImage{
+  width: 100%;
+  height: auto;
 }
 
 /* Form Styles */
@@ -214,16 +226,28 @@ button:hover {
   margin-bottom: 20px;
 }
 
-.topSection{
+#topSection{
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
 }
+
+.top-left{
+  flex:1;
+  display: flex;
+  flex-direction: column;
+}
+.top-right{
+  flex:1
+}
+
 /*font size */
 .f-md{
   font-size: 4rem;
   line-height: 0.9;
   color: var(--yellow-1);
+}
+.f-ms25{
+  font-size: 2rem;
 }
 
 .f-ms12{
@@ -244,6 +268,13 @@ button:hover {
 .f-cpp{
   color:var(--purple-pink);
 }
+.f-cb{
+  color:var(--blue-0)
+}
+
+.f-cy{
+  color: var(--yellow-1);
+}
 
 /* Cards */
 /* .card,
@@ -257,6 +288,7 @@ button:hover {
 }
  */
  /*audit-ratio section*/
+
  .arrow-svg-container{
   width:100%;
   display: flex;
@@ -265,11 +297,17 @@ button:hover {
   align-items: center;
  }
  
+ .ratio-status,
  .audit-content-container{
   width:100%;
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: end;
+ }
+ 
+ #status{
+  font-size: 1.5rem; /* Adjust as needed to match the size of the ratio text */
+  margin-left:1.5rem
  }
  .audit-left,
  .audit-right,
@@ -311,8 +349,8 @@ button:hover {
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
   padding: 20px;
-  width: 30%;
-  margin: 10px;
+  width: 95%;
+  margin: 0.15rem 0.5rem;
   text-align: left;
 }
 
@@ -341,7 +379,7 @@ button:hover {
 #barChart,
 #lineChart {
   width: 100%;
-  min-height:40rem; 
+  min-height:30rem; 
   margin-bottom: 0.5rem;
 }  
 
@@ -391,9 +429,8 @@ button:hover {
 .graph-display-name{
   border-radius: var(--radius-mm);
   background: var(--white-1);
-  width: 100%;
-  
-  font-size: 1.2rem;
+  width: 45%;
+  font-size: 1.4rem;
 }
 .rect:hover { 
   opacity: 0.5;

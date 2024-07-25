@@ -29,6 +29,7 @@
        <!-- user Info -->
        <div  class="card-user" >
           <div class="mini-card" id="user-info" >
+            <img id="userImage" alt="User Image"></img>
             <h2><span id="fullName"></span></h2>
             <li>Login: <span id="login"></span></li>
             <li>ID: <span id="userId"></span></li>
@@ -59,24 +60,16 @@
     <div class="right-section">
         <!-- header -->
       <div class="header">
-          <h1>Welcome to Your Dashboard, <span id="userLoginName"></span></h1>
+          <h1>Welcome to Your Dashboard, <span class="f-ms20 f-cb" id="userLoginName"></span></h1>
       </div>
       
       <!-- Top Section -->
       <div class="dashboard-section" id="topSection">
-       
-        
         <!-- XP Info-->
         <div id="xp-info" class="card">
           <h2><span id="totalXp" class="f-md"> </span></h2>
           <h1 class="bb-01">Last activity</h1>
         </div>
-        
-          <!-- on progress info-->
-         <!--  <div class="card">
-            <h4 class="bb-01">Currently working on</h4>
-            <div id="workingProjectsList"></div>        
-          </div> -->
         
         <!-- audit ratio Info-->
         <div id="audit-info" class="card">
@@ -116,12 +109,19 @@
               </div>
             </div>
           </div>
-          <div>
-            <h1 class="audit-ratio-value f-md"><span id="auditRatio"></span></h1>
+          <div class="ratio-status">
+            <div class="audit-ratio-value f-md"><span id="auditRatio"></span></div>
+            <div class="f-cy" id="status"></div>
           </div>
         </div>
-        <div class="push"></div>
-      </div>
+        <!-- skill pie chart-->
+        <div id="radarChartContainer" class="card">
+          <div class="chart-header">
+            <div class="f-ms18"><h2>Skills</h2></div>
+          </div>
+          <svg id="radarChart" width="100%"></svg>
+        </div>
+      </div> 
       
       <!-- Bottom Section -->
       <div class="dashboard-section" id="bottomSection">
@@ -137,21 +137,12 @@
           <div class="chart-header">
             <div class="f-ms18">XP Earned By Project</div>
             <div class="selection-label">
-              <div>
-                <label>language</label>
-                <select class="graph-display-name" data-default="js">
-                  <option value="js">Javascript</option>
-                  <option value="go-projects">Go</option>
-                </select>
-              </div>
-              <div>
-                <label>order</label>
-                <select class="graph-display-name" data-default="Descendling">
-                  <option value="alphabatical">alphabatical</option>
-                  <option value="descendling">Descendling</option>
-                  <option value="ascendling">Ascendling</option>
-                </select>
-              </div>
+              <label>order</label>
+              <select class="graph-display-name" data-default="Descendling">
+                <option value="alphabatical">alphabatical</option>
+                <option value="descendling">Descendling</option>
+                <option value="ascendling">Ascendling</option>
+              </select>
             </div>
           </div>
           <svg id="barChart" width="100%"></svg>

@@ -110,12 +110,10 @@ function graphqlQuery(token) {
     displayOnProgressInfo(result.data.user,result.data.progress)
     displayXPInfo(result.data.transaction)
     displayAuditInfo(result.data.transaction)
+    displaySkillInfo(result.data.transaction)
     displayXPLineChart(result.data.transaction)
     displayXPBarChart(result.data.transaction)
     
-    // Call the function with the fetched transactions
-    // debug print
-    printTransactionTypes(result.data.transaction);
     
     // Attach event listener for window resize
     // window.addEventListener('resize', handleResize);
@@ -137,6 +135,7 @@ function displayUserInfo(data) {
   document.getElementById('createdAt').textContent = formattedDateStringFrom(user.createdAt);
   document.getElementById('campus').textContent = capitalized(user.campus);
   document.getElementById('fullName').textContent = user.attrs.firstName + " " + user.attrs.lastName;
+  document.getElementById('userImage').src = user.attrs.image; 
 
 }
 
@@ -149,8 +148,8 @@ function displayOnProgressInfo(user, progress) {
           group.status === "working" && group.members.some(member => member.userLogin === userLogin)
       )
   );
-
-  console.log("All working projects", allCurrentWorkingProjects);
+  // debug print
+  // console.log("All working projects", allCurrentWorkingProjects);
 
   // Clear existing project info in the DOM
   const projectsContainer = document.getElementById('workingProjectsList');
@@ -178,7 +177,6 @@ function displayOnProgressInfo(user, progress) {
 
       // Extract and flatten the members array
       const members = groupData.flatMap(group => group.members);
-      console.log("Members length", members.length);
 
       // Exclude the logged-in user
       const membersExcludingUser = members.filter(member => member.userLogin !== userLogin);
@@ -199,12 +197,9 @@ function displayOnProgressInfo(user, progress) {
           memberNames = `<span style="color: #007bff;">${lastMember.userLogin}</span>`;
       }
 
-      console.log("All members' names", membersExcludingUser);
-      console.log("Member names", memberNames);
 
       // Get project start time
       const projectStartAt = new Date(prog.createdAt);
-      console.log("Project started at:", projectStartAt);
 
       // Calculate the duration
       const now = new Date();
@@ -234,7 +229,6 @@ function displayOnProgressInfo(user, progress) {
       // Append the project item to the list
       projectsContainer.appendChild(projectItem);
 
-      console.log("Duration:", durationString);
   });
 }
 
@@ -261,15 +255,24 @@ function displayAuditInfo(transactions){
   .filter((transaction) => transaction.type === 'up')
   .reduce((sum, transaction) => sum + transaction.amount, 0);
   
-const totalDown = transactions
+  const totalDown = transactions
   .filter((transaction) => transaction.type === 'down')
   .reduce((sum, transaction) => sum + transaction.amount, 0);
-    
+
   const auditRatio = totalUp / totalDown;  
+  let status 
+  if (auditRatio >= 1.5){
+    status ="Best ratio ever!"
+  } else if (1.3 < auditRatio < 1.5){
+      status ="You can do better!"
+  } else {
+      status ="Be careful!"
+  }
   
   document.getElementById('auditRatio').textContent = auditRatio.toFixed(1); // Display as float with 1 decimal places
   document.getElementById('totalUp').textContent =  formatNumber(totalUp);
   document.getElementById('totalDown').textContent = formatNumber(totalDown);
+  document.getElementById('status').textContent = status;
   generateAuditLine(totalUp,totalDown);
 }
 
@@ -501,17 +504,45 @@ function generateLineChart(data) {
 }
 
 function displayXPBarChart(transactions){
+  // debug print
+  console.log("all transaction data:",transactions)
+  
   const barChartData = transactions
   .filter((transaction) => transaction.type === 'xp')
   .map((transaction) => ({
     project: transaction.object.name,
     xp: transaction.amount,
   }));
+  
+  const goData = transactions
+  .filter((transaction) => transaction.type === 'skill_go')
+  .map((transaction) => ({
+    project: transaction.object.name,
+    xp: transaction.amount,
+  }));
+  const jsData = transactions
+  .filter((transaction) => transaction.type === 'skill_js')
+  .map((transaction) => ({
+    project: transaction.object.name,
+    xp: transaction.amount,
+  }));
 
+  const levelData =  transactions
+  .filter((transaction) => transaction.type === 'level')
+  .map((transaction) => ({
+    project: transaction.object.name,
+    xp: transaction.amount,
+  }));
+  
+  console.log("all go prject data:",goData)
+  console.log("all javascript prject data:",jsData)
+  console.log("all level data:",levelData)
+  
   generateXPBarChart(barChartData)
 }
 
 function generateXPBarChart(data) {
+  console.log("all the bar chart data:",data)
   // Clear existing SVG content
   d3.select("#barChart").selectAll("*").remove();
 
@@ -589,17 +620,187 @@ function generateXPBarChart(data) {
     
 }
 
-// Function to extract and print transaction types
-function printTransactionTypes(transactions) {
-  const types = transactions.map(transaction => transaction.type);
+function displaySkillInfo(transactions) {
+    
+   // Define the types to exclude
+   const excludeTypes = ["up", "down", "level","xp"];
   
- /*  console.log("Transaction Types:");
-  types.forEach(type => {
-    console.log(type);
-  }); */
-  console.log("all transation types:",types)
+   // Extract the xp values
+   const xpData = {};
+    
+   // store xp into a map
+   transactions
+     .filter(transaction => transaction.type === 'xp')
+     .forEach(transaction => {
+       xpData[transaction.object.name] = transaction.amount;
+     });
+  
+  // Filter the transactions to exclude the specified types
+  const filteredSkillsTransactions = transactions.filter(transaction => !excludeTypes.includes(transaction.type));
+  
+  const skills =["skill_go","skill_js","skill_html","skill_css","skill_sql","skill_docker","skill_c","skill_back-end","skill_front-end","skill_sys-admin","skill_algo","skill_stats","skill_game"]
+ 
+  console.log('all filtered skills transactions====>',filteredSkillsTransactions);
+  
+  // Create a map to store project skill information
+  const projectSkills = {};
+
+  filteredSkillsTransactions.forEach(transaction => {
+    if (skills.includes(transaction.type)) {
+      const projectName = transaction.object.name;
+      const skillType = transaction.type;
+      const amount = transaction.amount;
+      
+      // Initialize project entry if it doesn't exist
+      if (!projectSkills[projectName]) {
+        projectSkills[projectName] = {
+          name: projectName,
+          xp:  xpData[projectName],
+          skills: {}
+        };
+      }
+      
+      // Initialize skill entry if it doesn't exist
+      if (!projectSkills[projectName].skills[skillType]) {
+        projectSkills[projectName].skills[skillType] = 0;
+      }
+      
+      // Add the transaction amount to the skill amount
+      projectSkills[projectName].skills[skillType] += amount;
+    }
+  });
+  // debug print
+  console.log("all project skills===========>",projectSkills)
+  
+   /* let skillsAmount = {};
+  
+  // Aggregate skill amounts from all projects
+  Object.values(projectSkills).forEach(project => {
+    Object.entries(project.skills).forEach(([skillType, amount]) => {
+      if (!skillsAmount[skillType]) {
+        skillsAmount[skillType] = 0;
+      }
+      skillsAmount[skillType] += amount;
+    });
+  }); 
+
+  // Debug print
+  console.log("skills amount by type =======>", skillsAmount);*/
+  
+  // Aggregate the highest skill amounts from all projects
+  
+  let highestAmountBySkill = {};
+    
+  Object.values(projectSkills).forEach(project => {
+    Object.entries(project.skills).forEach(([skillType, amount]) => {
+      if (!highestAmountBySkill[skillType]) {
+        highestAmountBySkill[skillType] = 0;
+      }
+      highestAmountBySkill[skillType] = Math.max(highestAmountBySkill[skillType], amount);
+    });
+  });
+
+  // Debug print
+  console.log("highest amount by skill =======>", highestAmountBySkill);
+  
+  generateSkillsRadarChart(highestAmountBySkill)
 }
 
+function generateSkillsRadarChart(highestAmountBySkill) {
+  // Clear existing SVG content
+  d3.select("#radarChart").selectAll("*").remove();
+
+  // Set up scales with dynamic dimensions based on parent div
+  const parentDiv = document.getElementById('radarChartContainer');
+  const width = parentDiv.clientWidth;
+  const height = parentDiv.clientHeight;
+  const margin = 40;
+  const radius = Math.min(width, height) / 2 - margin;
+  const color = d3.scaleOrdinal(d3.schemeCategory10);
+
+  const svg = d3.select("#radarChart")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", `translate(${width / 2}, ${height / 2})`);
+
+  const angleSlice = Math.PI * 2 / Object.keys(highestAmountBySkill).length;
+
+  const rScale = d3.scaleLinear()
+    .domain([0, 100]) // Assuming percentages
+    .range([0, radius]);
+
+  const radarLine = d3.lineRadial()
+    .radius(d => rScale(d.value))
+    .angle((d, i) => i * angleSlice)
+    .curve(d3.curveLinearClosed);
+
+  // Data for radar chart
+  const data = Object.entries(highestAmountBySkill).map(([key, value]) => ({ key, value }));
+
+  // Draw radar chart background
+  const gridLevels = 5;
+  const gridCircles = svg.selectAll(".gridCircle")
+    .data(d3.range(1, gridLevels + 1).reverse())
+    .enter().append("circle")
+    .attr("class", "gridCircle")
+    .attr("r", d => radius / gridLevels * d)
+    .style("fill", "#CDCDCD")
+    .style("stroke", "#CDCDCD")
+    .style("fill-opacity", 0.1);
+
+  // Add the outer circle
+  svg.append("circle")
+    .attr("r", radius)
+    .style("fill", "none")
+    .style("stroke", "#CDCDCD");
+
+  // Draw radar chart lines
+  svg.append("path")
+    .datum(data)
+    .attr("class", "radarLine")
+    .attr("d", radarLine)
+    .style("fill", "#69b3a2")
+    .style("stroke", "#69b3a2")
+    .style("fill-opacity", 0.5);
+
+  // Draw axis lines
+  const axisGrid = svg.selectAll(".axis")
+    .data(data)
+    .enter().append("g")
+    .attr("class", "axis");
+
+  axisGrid.append("line")
+    .attr("x1", 0)
+    .attr("y1", 0)
+    .attr("x2", (d, i) => rScale(100) * Math.sin(i * angleSlice))
+    .attr("y2", (d, i) => -rScale(100) * Math.cos(i * angleSlice))
+    .style("stroke", "#CDCDCD")
+    .style("stroke-width", "2px");
+
+  // Draw axis labels
+  axisGrid.append("text")
+    .attr("class", "axisLabel")
+    .attr("x", (d, i) => (rScale(100) + 10) * Math.sin(i * angleSlice))
+    .attr("y", (d, i) => -(rScale(100) + 10) * Math.cos(i * angleSlice))
+    .attr("dy", "0.35em")
+    .style("font-size", "15px")
+    .style("fill", "#737373")
+    .style("text-anchor", "middle")
+    .text(d => d.key);
+
+  // Draw radar chart circles
+  svg.selectAll(".radarCircle")
+    .data(data)
+    .enter().append("circle")
+    .attr("class", "radarCircle")
+    .attr("r", 4)
+    .attr("cx", (d, i) => rScale(d.value) * Math.sin(i * angleSlice))
+    .attr("cy", (d, i) => -rScale(d.value) * Math.cos(i * angleSlice))
+    .style("fill", "#69b3a2") 
+    .style("fill-opacity", 0.8);
+}
+    
 function formattedDateStringFrom(dateString) {
   var date = new Date(dateString);
 
