@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
     displayDashboard();
   }
   
+    // Attach event listener for window resize
+    window.addEventListener('resize', handleResize);
 });
 
 /* let xpTimeChartData;
@@ -105,7 +107,7 @@ function graphqlQuery(token) {
   
     // Display the GraphQL data in text format below the dashboard sections
     displayUserInfo(result.data.user);
-    displayOnPrgressInfo(result.data.progress)
+    displayOnProgressInfo(result.data.user,result.data.progress)
     displayXPInfo(result.data.transaction)
     displayAuditInfo(result.data.transaction)
     displayXPLineChart(result.data.transaction)
@@ -138,56 +140,102 @@ function displayUserInfo(data) {
 
 }
 
-function  displayOnPrgressInfo(progress){
-  const currentProject = progress[0].object.name;
-  const groupData = progress[0].object.groups
-  .filter(group => group.captainLogin === 'rinrino');
- // Extract and flatten the members array
-  const members = groupData.flatMap(group => group.members);
-  
-  // Exclude the last member
-  const membersExcludingLastTwo = members.slice(0, -2);
+function displayOnProgressInfo(user, progress) {
+  const userLogin = user[0].login;
 
-  const memberNames = membersExcludingLastTwo.map(member => `<span style="color: #007bff;">${member.userLogin}</span>`).join(', ');
-  
-  console.log("all members name",membersExcludingLastTwo)
-  // new last member
-  const lastMemberName = membersExcludingLastTwo.length > 0 ? `<span style="color: #007bff;">${ members[ members.length - 2].userLogin}</span>` : '';
+  // Filter projects where the user is in a group with status "working"
+  const allCurrentWorkingProjects = progress.filter(prog =>
+      prog.object.groups.some(group =>
+          group.status === "working" && group.members.some(member => member.userLogin === userLogin)
+      )
+  );
 
-  console.log("last member:",lastMemberName)
-  // debug print
-/*   members.forEach(member => {
-    console.log(member.userLogin);
-  }); */
+  console.log("All working projects", allCurrentWorkingProjects);
 
-  //console.log(currentProject)
-  document.getElementById('latest_Project').textContent = currentProject;
- // Get project start time
-  const projectStartAt = new Date(progress[0].createdAt);
-  console.log("Project started at:", projectStartAt);
-  
-  // Calculate the duration
-  const now = new Date();
-  const durationMillis = now - projectStartAt;
-  const durationSecs = Math.floor(durationMillis / 1000);
-  
-  const weeks = Math.floor(durationSecs / (7 * 24 * 60 * 60));
-  const days = Math.floor((durationSecs % (7 * 24 * 60 * 60)) / (24 * 60 * 60));
-  const hours = Math.floor((durationSecs % (24 * 60 * 60)) / (60 * 60));
-  const minutes = Math.floor((durationSecs % (60 * 60)) / 60);
-  const seconds = durationSecs % 60;
-   // Create the duration string
-   const durationString = `${weeks}w ${days}d ${hours}h ${minutes}m ${seconds}s`;
+  // Clear existing project info in the DOM
+  const projectsContainer = document.getElementById('workingProjectsList');
+  projectsContainer.innerHTML = '';
 
-   // Display the information
-   document.getElementById('duration').textContent = ` ${durationString}`;
-   
-   // Update members span to include all members except the last one
-   document.getElementById('members').innerHTML = membersExcludingLastTwo.length > 0 ? ` with ${memberNames}` : '';
-    if (lastMemberName) {
-      document.getElementById('members').innerHTML += `, and ${lastMemberName}`;
-    }
-   console.log("Duration:", durationString);
+  // Track processed projects to avoid duplicates
+  const processedProjects = new Set();
+
+  // Check all current projects and display one by one
+  allCurrentWorkingProjects.forEach(prog => {
+      const currentProject = prog.object.name;
+
+      // Skip this project if it's already been processed
+      if (processedProjects.has(currentProject)) {
+          return;
+      }
+      
+      // Add project to the processed set
+      processedProjects.add(currentProject);
+
+      // Filter groups where the logged-in user is a member and group status is "working"
+      const groupData = prog.object.groups.filter(group =>
+          group.status === "working" && group.members.some(member => member.userLogin === userLogin)
+      );
+
+      // Extract and flatten the members array
+      const members = groupData.flatMap(group => group.members);
+      console.log("Members length", members.length);
+
+      // Exclude the logged-in user
+      const membersExcludingUser = members.filter(member => member.userLogin !== userLogin);
+
+      // Handle members
+      let memberNames = '';
+      if (membersExcludingUser.length > 1) {
+          // More than one member: Exclude the last one for the 'and' statement
+          const memberNamesExcludingLast = membersExcludingUser.slice(0, -1)
+              .map(member => `<span style="color: #007bff;">${member.userLogin}</span>`)
+              .join(', ');
+          const lastMember = membersExcludingUser.slice(-1)[0];
+          const lastMemberName = `<span style="color: #007bff;">${lastMember.userLogin}</span>`;
+          memberNames = `${memberNamesExcludingLast}${memberNamesExcludingLast ? ', and ' : ''}${lastMemberName}`;
+      } else if (membersExcludingUser.length === 1) {
+          // Only one other member
+          const lastMember = membersExcludingUser[0];
+          memberNames = `<span style="color: #007bff;">${lastMember.userLogin}</span>`;
+      }
+
+      console.log("All members' names", membersExcludingUser);
+      console.log("Member names", memberNames);
+
+      // Get project start time
+      const projectStartAt = new Date(prog.createdAt);
+      console.log("Project started at:", projectStartAt);
+
+      // Calculate the duration
+      const now = new Date();
+      const durationMillis = now - projectStartAt;
+      const durationSecs = Math.floor(durationMillis / 1000);
+
+      const weeks = Math.floor(durationSecs / (7 * 24 * 60 * 60));
+      const days = Math.floor((durationSecs % (7 * 24 * 60 * 60)) / (24 * 60 * 60));
+      const hours = Math.floor((durationSecs % (24 * 60 * 60)) / (60 * 60));
+      const minutes = Math.floor((durationSecs % (60 * 60)) / 60);
+      const seconds = durationSecs % 60;
+
+      // Create the duration string
+      const durationString = `${weeks}w ${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+      // Create project item
+      const projectItem = document.createElement('li');
+      projectItem.classList.add('project-item'); // Apply class for styling
+      
+      // Only add "with" and memberNames if there are other members
+      projectItem.innerHTML = `
+          <span class="f-ms14 f-cw">${currentProject}</span><br>
+          ${membersExcludingUser.length > 0 ? `<span>with ${memberNames}</span><br>` : ''}
+          <h4>since <span class="f-ms12 f-cpp">${durationString}</span>,  <em>keep going!</em></h4>
+      `;
+
+      // Append the project item to the list
+      projectsContainer.appendChild(projectItem);
+
+      console.log("Duration:", durationString);
+  });
 }
 
 function displayXPInfo(transactions){
@@ -226,10 +274,10 @@ const totalDown = transactions
 }
 
 function generateAuditLine(totalUp, totalDown) {
-  const parentDiv = document.getElementById('audit-left');
+  const parentDiv = document.getElementById('done-container');
 
   // Set the width for the SVG containers
-  const svgWidth = parentDiv.clientWidth;
+  const svgWidth = parentDiv.clientWidth-10;
   const svgHeight = 10; 
   
     // Define the D3 scale
@@ -636,7 +684,12 @@ function logout() {
   document.getElementById('error').innerHTML = '';
 }
 
-
-window.addEventListener('resize', function() {
-
-});
+ function handleResize() {
+    const svgContainer = document.querySelector("#xp-progress-chart");
+    const svgElement = svgContainer.querySelector("svg");
+    if (svgElement) {
+        const aspectRatio = svgElement.viewBox.baseVal.width / svgElement.viewBox.baseVal.height;
+        svgElement.style.width = "100%";
+        svgElement.style.height = `${svgElement.clientWidth / aspectRatio}px`;
+    }
+}

@@ -27,8 +27,8 @@
     
     <div class="left-section">
        <!-- user Info -->
-       <div id="user-info"  class="card-user" >
-          <div class="mini-card">
+       <div  class="card-user" >
+          <div class="mini-card" id="user-info" >
             <h2><span id="fullName"></span></h2>
             <li>Login: <span id="login"></span></li>
             <li>ID: <span id="userId"></span></li>
@@ -39,10 +39,8 @@
           
           <!-- on progress info-->
           <div class="mini-card">
-            <h4 class="bb-01">Currently working on</h4>
-            <li><span class="f-md3" id="latest_Project"></span></li>
-            <li><span id="members"></span></li>
-            <h4>since<span class="f-md1" id="duration"></span>, keep going!</h4>
+            <h3 class="bb-01">Currently working on</h3>
+            <div id="workingProjectsList"></div>        
           </div>
         
          <!-- audit ratio Info-->
@@ -70,14 +68,20 @@
         
         <!-- XP Info-->
         <div id="xp-info" class="card">
-          <h2><span id="totalXp" class="f-md"> XP</span></h2>
-          <h3 class="bb-01">Last activity</h3>
+          <h2><span id="totalXp" class="f-md"> </span></h2>
+          <h1 class="bb-01">Last activity</h1>
         </div>
+        
+          <!-- on progress info-->
+         <!--  <div class="card">
+            <h4 class="bb-01">Currently working on</h4>
+            <div id="workingProjectsList"></div>        
+          </div> -->
         
         <!-- audit ratio Info-->
         <div id="audit-info" class="card">
           <div class="audit-header">
-            <h2 class="bb-01">Audits ratio</h2>
+            <h1 class="bb-01">Audits ratio</h1>
           </div>
           <div class="audit-content-container">
             <div class="audit-left" id="audit-left">
@@ -124,14 +128,14 @@
         <!-- xp line chart-->
         <div id="xp-progress-chart" class="large-card">
           <div class="chart-header">
-            <div class="f-md2"><h2>XP progression</h2></div>
+            <div class="f-ms18"><h2>XP progression</h2></div>
           </div>
           <svg id="lineChart" width="100%"></svg>
         </div>
         <!-- xp bar chart-->
         <div id="barChartContainer" class="large-card">
           <div class="chart-header">
-            <div class="f-md2">XP Earned By Project</div>
+            <div class="f-ms18">XP Earned By Project</div>
             <div class="selection-label">
               <div>
                 <label>language</label>

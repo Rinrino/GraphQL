@@ -10,7 +10,7 @@
 
   /* grey */
   --grey-0: rgb(50,50,50);
-  --grey-1: #444;
+  --grey-1: rgb(60,60,60);
   --grey-2: rgb(80,80,80);
   --grey-3: rgb(164, 150, 150);
   --grey-4: rgb(95, 95, 95);
@@ -123,6 +123,7 @@ body {
 
 .left-section {
   width: 10%;
+  min-width: 200px;
   display: flex;
   flex-direction: column;
   padding: 20px;
@@ -218,23 +219,30 @@ button:hover {
   flex-direction: row;
   flex-wrap: wrap;
 }
-/*font */
+/*font size */
 .f-md{
   font-size: 4rem;
   line-height: 0.9;
   color: var(--yellow-1);
 }
 
-.f-md1{
+.f-ms12{
   font-size: 1.2rem;
-  color:var(--purple-pink);
 }
-.f-md2{
+.f-ms18{
   font-size: 1.8rem;
 }
-.f-md3{
+.f-ms14{
   font-size: 1.4rem;
+
+}
+/*font color */
+.f-cw{
   color:var(--white-0);
+}
+
+.f-cpp{
+  color:var(--purple-pink);
 }
 
 /* Cards */
