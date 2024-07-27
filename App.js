@@ -1,3 +1,5 @@
+// data for resizing 
+let lineChartData, barChartData ,upLineData,downLineData,skillsRadarData
 
 document.addEventListener('DOMContentLoaded', function () {
   const jwtToken = localStorage.getItem('jwt');
@@ -7,12 +9,11 @@ document.addEventListener('DOMContentLoaded', function () {
     displayDashboard();
   }
   
-    // Attach event listener for window resize
-    window.addEventListener('resize', handleResize);
+  // Attach event listener for window resize
+  window.addEventListener('resize', handleResize);
+  
 });
 
-/* let xpTimeChartData;
-let xpProjectChartData; */
 
 function displayDashboard() {
     // Show dashboard and hide login form
@@ -102,10 +103,9 @@ function graphqlQuery(token) {
   })
   .then(result => {
     
-    
     console.log("GraphQL result:", result);
   
-    // Display the GraphQL data in text format below the dashboard sections
+    // Display all the user data
     displayUserInfo(result.data.user);
     displayOnProgressInfo(result.data.user,result.data.progress)
     displayXPInfo(result.data.transaction)
@@ -114,9 +114,6 @@ function graphqlQuery(token) {
     displayXPLineChart(result.data.transaction)
     displayXPBarChart(result.data.transaction)
     
-    
-    // Attach event listener for window resize
-    // window.addEventListener('resize', handleResize);
   })
   .catch(error => {
     console.error(error);
@@ -239,7 +236,7 @@ function displayXPInfo(transactions){
 
   document.getElementById('totalXp').textContent = formatNumber(totalXp);
 
-  const projectsList = document.getElementById('xp-info');
+  const projectsList = document.getElementById('project-list');
   transactions
     .filter((transaction) => transaction.type === 'xp')
     .slice(0, 3).forEach((project) => {
@@ -273,10 +270,18 @@ function displayAuditInfo(transactions){
   document.getElementById('totalUp').textContent =  formatNumber(totalUp);
   document.getElementById('totalDown').textContent = formatNumber(totalDown);
   document.getElementById('status').textContent = status;
-  generateAuditLine(totalUp,totalDown);
+  
+  upLineData = totalUp;
+  downLineData = totalDown;
+  generateAuditLine(upLineData,downLineData);
 }
 
-function generateAuditLine(totalUp, totalDown) {
+function generateAuditLine(upLineData,downLineData) {
+  // Clear previous lines
+  d3.select("#done-svg").selectAll("*").remove();
+  d3.select("#received-svg").selectAll("*").remove();
+   
+  
   const parentDiv = document.getElementById('done-container');
 
   // Set the width for the SVG containers
@@ -285,12 +290,12 @@ function generateAuditLine(totalUp, totalDown) {
   
     // Define the D3 scale
     const xScale = d3.scaleLinear()
-   .domain([0, Math.max(totalUp, totalDown)]) // Domain is the range of data values
+   .domain([0, Math.max(upLineData, downLineData)]) // Domain is the range of data values
    .range([0, svgWidth]); // Range is the range of the SVG container width
 
   // Calculate the length of the lines using the scale
-  const doneLineLength = xScale(totalUp);
-  const receivedLineLength = xScale(totalDown);  
+  const doneLineLength = xScale(upLineData);
+  const receivedLineLength = xScale(downLineData);  
 
  /*   // Calculate the maximum line length for proportional scaling
   const maxTotal = Math.max(totalUp, totalDown);
@@ -298,10 +303,6 @@ function generateAuditLine(totalUp, totalDown) {
   // Calculate the length of the lines based on totalUp and totalDown
   const doneLineLength = (totalUp / maxTotal) * (svgWidth - 20); // Leave some padding
   const receivedLineLength = (totalDown / maxTotal) * (svgWidth - 20);  */ 
-  
-  // Clear previous lines
-  d3.select("#done-svg").selectAll("*").remove();
-  d3.select("#received-svg").selectAll("*").remove();
   
   // Create lines
   const doneLineSection = d3.select("#done-svg")
@@ -350,7 +351,7 @@ function generateAuditLine(totalUp, totalDown) {
 
 function displayXPLineChart(transactions) {
   // Extracting data for the line chart
-  const lineChartData = transactions
+  lineChartData = transactions
   /*TODO:CHECK MORE FILTER XP OR NOT*/
    .filter((transaction) => transaction.type === 'xp')  
     .map((transaction) => ({
@@ -361,28 +362,27 @@ function displayXPLineChart(transactions) {
     }));
     
     console.log("linechat data=>",lineChartData)
-  
+    //xpTimeChartData =lineChartData
     generateLineChart(lineChartData);
 }
 
-function generateLineChart(data) {
-  
+function generateLineChart(lineChartData ) {
   // Clear existing SVG content
   d3.select("#lineChart").selectAll("*").remove();
 
   // Sort the data based on date
-  data.sort((a, b) => a.date - b.date);
+  lineChartData.sort((a, b) => a.date - b.date);
 
   // Set up margins and dimensions
   const parentDiv = document.getElementById('xp-progress-chart')
-  const margin = { top: 20, right: 50, bottom: 30, left: 50 };
+  const margin = { top: 20, right: 50, bottom: 20, left: 50 };
   const width = parentDiv.clientWidth - margin.left - margin.right;
   const height = 300 - margin.top - margin.bottom;
 
-  const cumulativeData = data.map((d, i) => ({
+  const cumulativeData = lineChartData.map((d, i) => ({
     date: d.date,
     projectName:d.projectName,
-    xp: data.slice(0, i + 1).reduce((sum, item) => sum + item.xp, 0),
+    xp: lineChartData.slice(0, i + 1).reduce((sum, item) => sum + item.xp, 0),
   }));
   // Create an SVG container
   const svg = d3.select("#lineChart")
@@ -466,7 +466,7 @@ function generateLineChart(data) {
       .attr("x", xScale(d.date)-70)  // move left
       .attr("y", yScale(d.xp) + 70) ; // move down
 
-    tooltipLine3.text("finished at: "+ formattedDateStringFrom(d.date))
+    tooltipLine3.text(formattedDateStringFrom(d.date))
     .attr("x", xScale(d.date)-70)  // move left
     .attr("y", yScale(d.xp) + 70) ; // move down
         
@@ -507,7 +507,7 @@ function displayXPBarChart(transactions){
   // debug print
   console.log("all transaction data:",transactions)
   
-  const barChartData = transactions
+  barChartData = transactions
   .filter((transaction) => transaction.type === 'xp')
   .map((transaction) => ({
     project: transaction.object.name,
@@ -531,7 +531,7 @@ function displayXPBarChart(transactions){
   .filter((transaction) => transaction.type === 'level')
   .map((transaction) => ({
     project: transaction.object.name,
-    xp: transaction.amount,
+    level: transaction.amount,
   }));
   
   console.log("all go prject data:",goData)
@@ -541,19 +541,19 @@ function displayXPBarChart(transactions){
   generateXPBarChart(barChartData)
 }
 
-function generateXPBarChart(data) {
-  console.log("all the bar chart data:",data)
+function generateXPBarChart(barChartData) {
+  console.log("all the bar chart data:",barChartData);
   // Clear existing SVG content
   d3.select("#barChart").selectAll("*").remove();
 
   // Set up scales with dynamic dimensions based on parent div
   const parentDiv = document.getElementById('barChartContainer');
-  const margin = { top: 20, right: 20, bottom: 60, left: 40};
+  const margin = { top: 20, right: 20, bottom: 20, left: 20};
   const width = parentDiv.clientWidth - margin.left - margin.right;
-  const height = 300; // Set an initial height or adjust as needed
+  const height = 300 - margin.top - margin.bottom; // Set an initial height or adjust as needed
 
   // Group data by project name and calculate total XP for each project
-  const projectsData = d3.group(data, d => d.project);
+  const projectsData = d3.group(barChartData, d => d.project);
   const projectXpData = Array.from(projectsData, ([projectName, projectData]) => ({
     projectName,
     totalXp: d3.sum(projectData, d => d.xp),
@@ -648,7 +648,7 @@ function displaySkillInfo(transactions) {
   filteredSkillsTransactions.forEach(transaction => {
     if (skills.includes(transaction.type)) {
       const projectName = transaction.object.name;
-      const skillType = transaction.type;
+      const skillType = shorten(transaction.type);
       const amount = transaction.amount;
       
       // Initialize project entry if it doesn't exist
@@ -702,21 +702,21 @@ function displaySkillInfo(transactions) {
 
   // Debug print
   console.log("highest amount by skill =======>", highestAmountBySkill);
-  
-  generateSkillsRadarChart(highestAmountBySkill)
+  skillsRadarData = highestAmountBySkill;
+  generateSkillsRadarChart(skillsRadarData)
 }
 
-function generateSkillsRadarChart(highestAmountBySkill) {
+function generateSkillsRadarChart(skillsRadarData) {
   // Clear existing SVG content
   d3.select("#radarChart").selectAll("*").remove();
 
   // Set up scales with dynamic dimensions based on parent div
   const parentDiv = document.getElementById('radarChartContainer');
-  const width = parentDiv.clientWidth;
-  const height = parentDiv.clientHeight;
+  const width = parentDiv.clientWidth / 2 - 20;
+  const height = width;
+  console.log("widht and height===>",width,height)
   const margin = 40;
   const radius = Math.min(width, height) / 2 - margin;
-  const color = d3.scaleOrdinal(d3.schemeCategory10);
 
   const svg = d3.select("#radarChart")
     .attr("width", width)
@@ -724,7 +724,7 @@ function generateSkillsRadarChart(highestAmountBySkill) {
     .append("g")
     .attr("transform", `translate(${width / 2}, ${height / 2})`);
 
-  const angleSlice = Math.PI * 2 / Object.keys(highestAmountBySkill).length;
+  const angleSlice = Math.PI * 2 / Object.keys(skillsRadarData).length;
 
   const rScale = d3.scaleLinear()
     .domain([0, 100]) // Assuming percentages
@@ -736,11 +736,11 @@ function generateSkillsRadarChart(highestAmountBySkill) {
     .curve(d3.curveLinearClosed);
 
   // Data for radar chart
-  const data = Object.entries(highestAmountBySkill).map(([key, value]) => ({ key, value }));
+  const data = Object.entries(skillsRadarData).map(([key, value]) => ({ key, value }));
 
   // Draw radar chart background
   const gridLevels = 5;
-  const gridCircles = svg.selectAll(".gridCircle")
+ svg.selectAll(".gridCircle")
     .data(d3.range(1, gridLevels + 1).reverse())
     .enter().append("circle")
     .attr("class", "gridCircle")
@@ -781,10 +781,10 @@ function generateSkillsRadarChart(highestAmountBySkill) {
   // Draw axis labels
   axisGrid.append("text")
     .attr("class", "axisLabel")
-    .attr("x", (d, i) => (rScale(100) + 10) * Math.sin(i * angleSlice))
-    .attr("y", (d, i) => -(rScale(100) + 10) * Math.cos(i * angleSlice))
+    .attr("x", (d, i) => (rScale(100) + 20) * Math.sin(i * angleSlice)) // Increase offset
+    .attr("y", (d, i) => -(rScale(100) + 20) * Math.cos(i * angleSlice)) // Increase offset
     .attr("dy", "0.35em")
-    .style("font-size", "15px")
+    .style("font-size", "1.2rem")
     .style("fill", "#737373")
     .style("text-anchor", "middle")
     .text(d => d.key);
@@ -807,7 +807,7 @@ function formattedDateStringFrom(dateString) {
   // Define options for the date formatting
   var options = { 
     year: 'numeric', 
-    month: 'long', 
+    month: 'short', 
     day: 'numeric' 
   };
   
@@ -832,6 +832,11 @@ function formatNumber(value) {
   } else {
       return (number / 1000000).toFixed(2) + " MB";
   }
+}
+
+// only only extract go from "skill_go" for example
+function shorten(text){
+  return text.split("_")[1]
 }
 
 function login(){
@@ -885,12 +890,10 @@ function logout() {
   document.getElementById('error').innerHTML = '';
 }
 
- function handleResize() {
-    const svgContainer = document.querySelector("#xp-progress-chart");
-    const svgElement = svgContainer.querySelector("svg");
-    if (svgElement) {
-        const aspectRatio = svgElement.viewBox.baseVal.width / svgElement.viewBox.baseVal.height;
-        svgElement.style.width = "100%";
-        svgElement.style.height = `${svgElement.clientWidth / aspectRatio}px`;
-    }
+function handleResize() {
+ //generate those svg again after resize
+ generateAuditLine(upLineData,downLineData);
+ generateSkillsRadarChart(skillsRadarData);
+ generateLineChart(lineChartData);
+ generateXPBarChart(barChartData);
 }

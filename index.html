@@ -39,96 +39,94 @@
           </div>
           
           <!-- on progress info-->
-          <div class="mini-card">
+          <div class="mini-card" id="OnProgress">
             <h3 class="bb-01">Currently working on</h3>
             <div id="workingProjectsList"></div>        
           </div>
-        
-         <!-- audit ratio Info-->
-      <!--   <div id="audit-info" >
-          <h1 class="audit-ratio-value f-md"><span id="auditRatio"></span></h1>
-          <h2 class="bb-01">Audits ratio</h2>
-          <li>Done: <span id="totalUp"></span></li>
-          <li>Received: <span id="totalDown"></span></li>
-        </div> -->
       </div>
-      <div class="logout-button">
-        <button type="button" onclick="logout()">Logout</button>
+      <div >
+        <button class="logout-button" type="button" onclick="logout()">Logout</button>
       </div>
     </div>
     
     <div class="right-section">
-        <!-- header -->
+
+      <!-- header -->
       <div class="header">
-          <h1>Welcome to Your Dashboard, <span class="f-ms20 f-cb" id="userLoginName"></span></h1>
+        <h1>Welcome to Your Dashboard, <span class="f-ms20 f-cb" id="userLoginName"></span></h1>
       </div>
       
       <!-- Top Section -->
       <div class="dashboard-section" id="topSection">
-        <!-- XP Info-->
-        <div id="xp-info" class="card">
-          <h2><span id="totalXp" class="f-md"> </span></h2>
-          <h1 class="bb-01">Last activity</h1>
-        </div>
-        
-        <!-- audit ratio Info-->
-        <div id="audit-info" class="card">
-          <div class="audit-header">
-            <h1 class="bb-01">Audits ratio</h1>
+        <div class="top-left">
+          <!-- XP Info-->
+          <div id="xp-info" class="card">
+            <h2><span id="totalXp" class="f-md"> </span></h2>
+            <h2 class="bb-01">Last activity</h2>
+            <div><span id="project-list"></span></div>
           </div>
-          <div class="audit-content-container">
-            <div class="audit-left" id="audit-left">
-              <div id="done-container" class="svg-container">
-                <svg id="done-svg" width="100%" role="img" aria-label="done-icon">
-                </svg>
+          
+          <!-- audit ratio Info-->
+          <div id="audit-info" class="card">
+            <div class="audit-header">
+              <h1 class="bb-01">Audits ratio</h1>
+            </div>
+            <div class="audit-content-container">
+              <div class="audit-left" id="audit-left">
+                <div id="done-container" class="svg-container">
+                  <svg id="done-svg" width="100%" role="img" aria-label="done-icon">
+                  </svg>
+                </div>
+                <div id="received-container" class="svg-container">
+                  <svg id="received-svg"  width="100%" role="img" aria-label="received-icon">
+                  </svg>
+                </div>
               </div>
-              <div id="received-container" class="svg-container">
-                <svg id="received-svg"  width="100%" role="img" aria-label="received-icon">
-                </svg>
+              <div class="audit-right f-ms14">
+                <div class="audit-content">
+                  <div>
+                    <span id="totalUp"></span>
+                  </div>
+                  <div class="arrow-svg-container">
+                    <div>Done</div>
+                    <svg id="up-arraw" role="img" width="12" viewBox="0 0 130 130" aria-label="icon"><path fill="none" stroke="var(--white-0)" stroke-width="6" d="M17.35 55.4L65 7.75l47.65 47.65M65 122.75V8.41"></path></svg>
+                  </div>
+                </div>
+                
+                <div class="audit-content">
+                  <div class="arrow-svg-container">
+                    <div>Received</div>
+                    <svg id="down-arraw" role="img" width="12" viewBox="0 0 130 130" aria-label="icon"><path fill="none" stroke="var(--white-0)" stroke-width="6" d="M114.65 73.1L67 120.75 19.35 73.1M67 5.75v114.34"></path></svg>
+                  </div>
+                  <div>
+                    <span id="totalDown"></span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="audit-right">
-              <div class="audit-content">
-                <div>
-                  <span id="totalUp"></span>
-                </div>
-                <div class="arrow-svg-container">
-                  <div>Done</div>
-                  <div>↑</div>
-                </div>
-              </div>
-              
-              <div class="audit-content">
-                <div class="arrow-svg-container">
-                  <div>Received</div>
-                  <div>↓</div>
-                </div>
-                <div>
-                  <span id="totalDown"></span>
-                </div>
-              </div>
+            <div class="ratio-status">
+              <div class="audit-ratio-value f-md"><span id="auditRatio"></span></div>
+              <div class="f-cy" id="status"></div>
             </div>
           </div>
-          <div class="ratio-status">
-            <div class="audit-ratio-value f-md"><span id="auditRatio"></span></div>
-            <div class="f-cy" id="status"></div>
-          </div>
         </div>
-        <!-- skill pie chart-->
-        <div id="radarChartContainer" class="card">
-          <div class="chart-header">
-            <div class="f-ms18"><h2>Skills</h2></div>
+        <div class="top-right">
+          <!-- skill radar chart-->
+          <div id="radarChartContainer" class="card">
+            <div class="chart-header">
+              <div class="f-ms18">Skills</div>
+            </div>
+            <svg id="radarChart" width="100%"></svg>
           </div>
-          <svg id="radarChart" width="100%"></svg>
-        </div>
-      </div> 
+        </div> 
+      </div>
       
       <!-- Bottom Section -->
       <div class="dashboard-section" id="bottomSection">
         <!-- xp line chart-->
         <div id="xp-progress-chart" class="large-card">
           <div class="chart-header">
-            <div class="f-ms18"><h2>XP progression</h2></div>
+            <div class="f-ms18">XP progression</div>
           </div>
           <svg id="lineChart" width="100%"></svg>
         </div>
