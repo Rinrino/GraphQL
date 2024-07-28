@@ -181,7 +181,10 @@ button:hover {
 }
 
 #userImage{
-  width: 100%;
+  display: block;
+  align-items: center;
+  margin: 0 auto;
+  width: 90%;
   height: auto;
 }
 
@@ -218,23 +221,19 @@ button:hover {
 .right-section {
  flex: 1;
  height: 100vh;
- display: grid;
- grid-gap: 1rem;
- grid-template-rows: 30px 1fr 1fr;
+ display: flex;
+ flex-direction: column;
+ overflow: scroll;
 }
  
 /* Header and Dashboard Section */
 .header {
-  grid-column: 1 / -1; /* Span across both columns */
+  height: 50px;
   width: 100%;
   padding: 0;
 }
-.header h1{
-  margin: 0;
-}
 
 .dashboard-section {
-  grid-column: 1 / -1; /* Span across both columns */
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
@@ -258,12 +257,35 @@ button:hover {
  
 /* Container for top section */ /*try use grid*/
 #topSection {
+  flex: 1;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: auto auto;
-  gap: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 1fr;
+  /*gap: 10px;*/
   height: 100%; /* Ensure the top section takes the full height */
 }
+#bottomSection{
+  flex: 1;
+ /*  display: grid;
+  grid-template-columns: 1fr 1fr; */
+}
+
+.tooltip {
+  position: absolute;
+  text-align: center;
+  width: auto;
+  height: auto;
+  padding: 5px;
+  font-size: 12px;
+  background: white;
+  border: 5px;
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+
 /* Left section cards */
 #xp-info, #audit-info {
   grid-column: 1;
@@ -282,12 +304,20 @@ button:hover {
 }
 /* Right section card */
 #radarChartContainer {
-  grid-column: 2;
-  grid-row: 1 / span 2; /* Span across both rows */
-  height: 100%; /* Ensure the card takes the full height */
   display: flex;
   flex-direction: column;
+  text-align: left;
+  align-items: center;
+  background: var(--grey-2);
+  border-radius: var(--radius-md);
   padding: 20px;
+  box-shadow: var(--shadow-light-0);
+}
+
+
+#radarChart {
+  width: 95%;
+  height: auto;
 }
 
 /* .card {
@@ -365,7 +395,6 @@ button:hover {
  
 /* seperate left and right */
 .card {
-  flex:1;
   background: var(--grey-1);
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -425,13 +454,13 @@ button:hover {
   color: var(--white-0);
 }
 
-/* .chart-header{
+.chart-header{
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   margin: 0;
   vertical-align: bottom;
-} */
+}
 
 .selection-label{
   margin-left: 3rem;
@@ -439,14 +468,22 @@ button:hover {
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
+  font-size: 0.5rem;
 }
 
 .graph-display-name{
   border-radius: var(--radius-mm);
   background: var(--white-1);
   width: 45%;
+  height: fit-content;
+  justify-self: end;
   font-size: 1.4rem;
 }
+
+.rect { 
+  transition: 0.3s;
+ }
+ 
 .rect:hover { 
   opacity: 0.5;
  }
@@ -514,6 +551,7 @@ button:hover {
     flex-wrap: wrap;
   }
   
+ 
   .dashboard-section {
     flex-direction: column;
   }

@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function () {
   if(jwtToken){
     graphqlQuery(jwtToken)
     displayDashboard();
+  }else{
+    // Show login form
+    document.getElementById('loginContainer').style.display = 'block';
   }
   
   // Attach event listener for window resize
@@ -456,25 +459,28 @@ function generateLineChart(lineChartData ) {
 
   // Show and position the tooltip on hover
   circles.on("mouseover", function(event, d) {
-    d3.select(this).attr("fill", "royalblue"); // Change color on hover
+    d3.select(this).transition().duration(200).attr("fill", "royalblue"); // Change color on hover with transition
 
-    tooltipLine1.text(d.projectName)
-      .attr("x", xScale(d.date)-70) // move left
-      .attr("y", yScale(d.xp) + 50); // move down
+    tooltip.transition().duration(200).style("opacity", 1); // Show the tooltip with transition
 
-    tooltipLine2.text(formatNumber(d.xp))
-      .attr("x", xScale(d.date)-70)  // move left
-      .attr("y", yScale(d.xp) + 70) ; // move down
+    tooltipLine1.transition().duration(200)
+      .attr("x", xScale(d.date) - 70) // move left
+      .attr("y", yScale(d.xp) + 50) // move down
+      .text(d.projectName);
 
-    tooltipLine3.text(formattedDateStringFrom(d.date))
-    .attr("x", xScale(d.date)-70)  // move left
-    .attr("y", yScale(d.xp) + 70) ; // move down
-        
-    tooltip.style("opacity", 1); // Show the tooltip
+    tooltipLine2.transition().duration(200)
+      .attr("x", xScale(d.date) - 70)  // move left
+      .attr("y", yScale(d.xp) + 70) // move down
+      .text(formatNumber(d.xp));
+
+    tooltipLine3.transition().duration(200)
+      .attr("x", xScale(d.date) - 70)  // move left
+      .attr("y", yScale(d.xp) + 70) // move down
+      .text(formattedDateStringFrom(d.date));
   })
   .on("mouseout", function() {
-    d3.select(this).attr("fill", "white"); // Revert color on mouse out
-    tooltip.style("opacity", 0); // Hide the tooltip
+    d3.select(this).transition().duration(200).attr("fill", "white"); // Revert color on mouse out with transition
+    tooltip.transition().duration(200).style("opacity", 0); // Hide the tooltip with transition
   });
 
   // Append x and y axes
@@ -548,7 +554,7 @@ function generateXPBarChart(barChartData) {
 
   // Set up scales with dynamic dimensions based on parent div
   const parentDiv = document.getElementById('barChartContainer');
-  const margin = { top: 20, right: 20, bottom: 20, left: 20};
+  const margin = { top: 40, right: 20, bottom: 20, left: 20};
   const width = parentDiv.clientWidth - margin.left - margin.right;
   const height = 300 - margin.top - margin.bottom; // Set an initial height or adjust as needed
 
@@ -593,8 +599,9 @@ function generateXPBarChart(barChartData) {
     svg.append("text")
       .attr("class", "hover-label")
       .attr("x", xScale(d.projectName) + xScale.bandwidth() / 2)
-      .attr("y", yScale(d.totalXp) - 5)
+      .attr("y", yScale(d.totalXp) - 35)
       .attr("dy", ".75em")
+      .attr("font-size", "25px")
       .attr("text-anchor", "middle")
       .attr("fill", "#ddd") // Change text color 
       .text(formatNumber(d.totalXp));
@@ -705,22 +712,21 @@ function displaySkillInfo(transactions) {
   skillsRadarData = highestAmountBySkill;
   generateSkillsRadarChart(skillsRadarData)
 }
-
+   
 function generateSkillsRadarChart(skillsRadarData) {
   // Clear existing SVG content
   d3.select("#radarChart").selectAll("*").remove();
 
   // Set up scales with dynamic dimensions based on parent div
   const parentDiv = document.getElementById('radarChartContainer');
-  const width = parentDiv.clientWidth / 2 - 20;
+  const width = parentDiv.clientWidth;
   const height = width;
-  console.log("widht and height===>",width,height)
-  const margin = 40;
+  const margin = 100;
   const radius = Math.min(width, height) / 2 - margin;
 
   const svg = d3.select("#radarChart")
-    .attr("width", width)
-    .attr("height", height)
+    .attr("viewBox", `0 0 ${width} ${height}`)
+    .attr("preserveAspectRatio", "xMidYMid meet")
     .append("g")
     .attr("transform", `translate(${width / 2}, ${height / 2})`);
 
@@ -740,7 +746,7 @@ function generateSkillsRadarChart(skillsRadarData) {
 
   // Draw radar chart background
   const gridLevels = 5;
- svg.selectAll(".gridCircle")
+  svg.selectAll(".gridCircle")
     .data(d3.range(1, gridLevels + 1).reverse())
     .enter().append("circle")
     .attr("class", "gridCircle")
@@ -781,11 +787,11 @@ function generateSkillsRadarChart(skillsRadarData) {
   // Draw axis labels
   axisGrid.append("text")
     .attr("class", "axisLabel")
-    .attr("x", (d, i) => (rScale(100) + 20) * Math.sin(i * angleSlice)) // Increase offset
-    .attr("y", (d, i) => -(rScale(100) + 20) * Math.cos(i * angleSlice)) // Increase offset
+    .attr("x", (d, i) => (rScale(100) + 25) * Math.sin(i * angleSlice)) // Increase offset
+    .attr("y", (d, i) => -(rScale(100) + 25) * Math.cos(i * angleSlice)) // Increase offset
     .attr("dy", "0.35em")
-    .style("font-size", "1.2rem")
-    .style("fill", "#737373")
+    .style("font-size", "1.8rem")
+    .style("fill", "rgba(255,255,255,0.4)")
     .style("text-anchor", "middle")
     .text(d => d.key);
 
@@ -794,13 +800,64 @@ function generateSkillsRadarChart(skillsRadarData) {
     .data(data)
     .enter().append("circle")
     .attr("class", "radarCircle")
-    .attr("r", 4)
+    .attr("r", 8)
     .attr("cx", (d, i) => rScale(d.value) * Math.sin(i * angleSlice))
     .attr("cy", (d, i) => -rScale(d.value) * Math.cos(i * angleSlice))
-    .style("fill", "#69b3a2") 
-    .style("fill-opacity", 0.8);
+    .style("fill", "#69b3a2")
+    .style("fill-opacity", 0.8)
+    .on("mouseover", function(event, d) {
+      tooltip.transition().duration(200).style("opacity", .9);
+      tooltip.html(`${d.value}%`)
+        .style("left", (event.pageX + 5) )
+        .style("top", (event.pageY - 28) );
+        
+      d3.select(this)   /*make circle bigger,when hover it*/
+        .transition().duration(200)
+        .attr("r", 6)
+        .style("fill", "white")
+        .style("fill-opacity", 1);
+
+      d3.selectAll(".axisLabel") /* select corespond label and make it bigger*/
+        .filter(function(label) { return label === d; })
+        .transition().duration(200)
+        .style("font-size", "2.8rem")
+        .style("fill", "white")
+        .style("fill-opacity", 1);
+    })
+    .on("mousemove", function(event) {
+      tooltip.style("left", (event.pageX -25 ) + "px") // change the tootip text position
+        .style("top", (event.pageY - 55) + "px"); // change the tootip text position
+    })
+    .on("mouseout", function(event, d) {
+      tooltip.transition().duration(200).style("opacity", 0);
+
+      d3.select(this)
+        .transition().duration(200)
+        .attr("r", 8)
+        .style("fill", "#69b3a2")
+        .style("fill-opacity", 0.8);
+
+      d3.selectAll(".axisLabel")
+        .filter(function(label) { return label === d; })
+        .transition().duration(200)
+        .style("font-size", "1.8rem")
+        .style("fill-opacity", 0.4);
+    });
+
+  // Tooltip element
+  const tooltip = d3.select("body").append("div")
+  .attr("class", "tooltip")
+  .style("opacity", 0)
+  .style("position", "absolute")
+  .style("text-align", "center")
+  .style("padding", "8px")
+  .style("font-size", "1.8rem")
+  .style("color", "#fff")  // Tooltip text color
+  .style("background", "none") // No background
+  .style("border", "none") // No border
+  .style("pointer-events", "none");
 }
-    
+
 function formattedDateStringFrom(dateString) {
   var date = new Date(dateString);
 
