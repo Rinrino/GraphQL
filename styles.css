@@ -241,14 +241,20 @@ button:hover {
   align-self: center;
 }
 /* end of left section*/
-
+.logout-button2{
+  display: none;
+}
+ 
 
 /* Header and Dashboard Section */
 .header {
+  display: flex;
+  justify-content: space-between;
   grid-area: header;
   height: 50px;
   width: 100%;
   padding: 0;
+  margin: auto;
 }
  
 /* Container for top section */ /*try use grid*/
@@ -531,17 +537,78 @@ font-size: 4vw;
 
 @media (max-width: 1500px) {
   
-  .left-section{
-    display: none;
-  }
   .container{
     grid-template-columns: 1fr;
     grid-template-areas: 
     "header"
+    "left-section"
     "dashboard-top"
     "dashboard-bottom";
   }
   
+  /* Header and Dashboard Section */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    grid-area: header;
+    height: 50px;
+    width: 100%;
+    padding: 0;
+    margin: auto;
+  }
+    
+  .left-section {
+    position: relative; /*cancel the abslute*/
+    grid-area: left-section;
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    height: fit-content;
+    box-sizing: border-box;
+    background: var(--grey-1);
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    padding: 16px;
+    margin-left: 16px;
+  }
+  .card-user{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center; /* Center the image and name vertically */
+    margin:16px;
+  }
+  .card-user .list-item{
+    font-size: 1.18rem;
+    align-self:first center;
+  }
+
+  .user-header {
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the image and name vertically */
+    justify-content: center;
+    vertical-align: top;
+  }
+  #userImage {
+    width:50%;
+    height:50%;
+    border-radius: 50%;
+  }
+  .logout-button{
+    display: none;
+  }
+   
+  .logout-button2{
+    display: block;
+   align-self: center;
+   margin-right: 1.5rem;
+   margin-top: 1rem; 
+   padding: 0.8rem;
+   letter-spacing: 1px;
+  }
   .dashboard-top{
     grid-area: dashboard-top;
     display: grid;
@@ -587,27 +654,88 @@ font-size: 4vw;
 }
 
  @media (max-width: 1150px) {
+  .container{
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+    "header"
+    "left-section"
+    "dashboard-top"
+    "dashboard-bottom";
+  }
+   
+    /* Header and Dashboard Section */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    grid-area: header;
+    height: auto;
+    width: 100%;
+    padding: 0;
+    margin: auto;
+  }
+    
+  .left-section {
+    position: relative; /*cancel the abslute*/
+    grid-area: left-section;
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    height: fit-content;
+    box-sizing: border-box;
+    background: var(--grey-1);
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    padding: 16px;
+    margin-left: 16px;
+  }
+  .card-user{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center; /* Center the image and name vertically */
+    margin:16px;
+  }
+  .card-user .list-item{
+    font-size: 1.18rem;
+    align-self:first center;
+  }
+
+  .user-header {
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the image and name vertically */
+    justify-content: center;
+    vertical-align: top;
+  }
+  #userImage {
+    width:50%;
+    height:50%;
+    border-radius: 50%;
+  }
+  .logout-button{
+    display: none;
+  }
+   
+  .logout-button2{
+    display: block;
+   align-self: center;
+   margin: 1rem auto;
+   margin-top: 0.4rem;
+   padding: 0.5rem 1rem; 
+   letter-spacing: 1px;
+  }
   
-   
-   .left-section{
-     display: none;
-   }
-   .container{
-     grid-template-columns: 1fr;
-     grid-template-areas: 
-     "header"
-     "dashboard-top"
-     "dashboard-bottom";
-   }
-   
    .dashboard-top{
      grid-area: dashboard-top;
      display: grid;
      grid-template-columns: 3fr 2fr;
      grid-template-areas: 
-     "radarChart radarChart"
      "xpInfo OnProgress"
-     "auditInfo OnProgress";
+     "auditInfo OnProgress"
+     "radarChart radarChart";
+     
    }
    
    .xp-info{
@@ -653,37 +781,117 @@ font-size: 4vw;
  
 /* mobile */
 @media (max-width: 700px) {
-  .left-section{
-    display: none;
-  }
   .container{
     grid-template-columns: 1fr;
     grid-template-areas: 
     "header"
+    "left-section"
     "dashboard-top"
     "dashboard-bottom";
   }
-  .header{
-    display: inline-block;
-    justify-self: center;
+   
+    /* Header and Dashboard Section */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    grid-area: header;
+    height: auto;
+    width: 100%;
+    padding: 0;
+    margin: auto;
+  }
+    
+  .left-section {
+    position: relative; /*cancel the abslute*/
+    grid-area: left-section;
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    height: fit-content;
+    box-sizing: border-box;
+    background: var(--grey-1);
+    border-radius: var(--radius-md);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    padding: 16px;
+    margin-left: 16px;
+  }
+  .card-user{
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center; /* Center the image and name vertically */
+    margin:16px;
+    
+    @media(max-width: 375px){
+      flex-direction: column;      
+    }
+  }
+  .card-user .list-item{
+    font-size: 1.18rem;
+    align-self:first center;
+  }
+
+  .user-header {
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the image and name vertically */
+    justify-content: center;
+    vertical-align: top;
+    @media(max-width: 375px){
+      flex-direction: row;
+      justify-content: space-between;
+      align-self: flex-start;
+    }
+  }
+  #userImage {
+    width:50%;
+    height:50%;
+    border-radius: 50%;
+    @media(max-width: 375px){
+      width:45px;
+      height:45px;
+      margin-right: 20px;
+      border-radius: 0;
+    }
+  }
+  .logout-button{
+    display: none;
+  }
+   
+  .logout-button2{
+    display: block;
+   align-self: center;
+   margin-right: 0.8rem;
+   margin-top: 0.8rem; 
+   padding: 0.4rem;
+   letter-spacing: 1px;
+   width: 100%;
+   box-sizing: border-box;
+    @media(max-width: 375px){
+      width: auto;    
+      margin-right: 0.4rem;
+      margin-top: 0.4rem; 
+      padding: auto;
+    }
   }
   .header h1{
-    font-size: 4.6vw;
+    font-size: 5vw;
     line-height: normal;
     margin: 0;
     align-items: center;
   }
-
  
   .dashboard-top{
     grid-area: dashboard-top;
     display: grid;
     grid-template-columns: 1fr;
     grid-template-areas: 
-    "radarChart"
     "xpInfo"
     "auditInfo" 
-    "OnProgress";
+    "OnProgress"
+    "radarChart";
   }
   
   .xp-info{

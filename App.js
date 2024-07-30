@@ -958,8 +958,10 @@ window.onload = () => {
 };
 
 function logout() {
-  // Remove the token from localStorage or cookie
+  // Remove the token and username from localStorage or sessionStorage
   localStorage.removeItem('jwt');
+  localStorage.removeItem('username');
+  sessionStorage.removeItem('jwt');
 
   // Show login form and hide dashboard
   document.getElementById('loginContainer').style.display = 'block';
