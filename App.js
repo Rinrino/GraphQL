@@ -1,5 +1,5 @@
 // data for resizing 
-let lineChartData, barChartData ,upLineData,downLineData,skillsRadarData
+let lineChartData, transactions,selectedData  ,upLineData,downLineData,skillsRadarData;
 
 document.addEventListener('DOMContentLoaded', function () {
   const jwtToken = localStorage.getItem('jwt');
@@ -27,7 +27,6 @@ function displayDashboard() {
   
 function graphqlQuery(token) {
   
-  console.log("graphqlQuery got called!!")
   // Replace 'YOUR_GRAPHQL_ENDPOINT' with your actual GraphQL endpoint
   const graphqlEndpoint = 'https://learn.01founders.co/api/graphql-engine/v1/graphql';
 
@@ -106,7 +105,9 @@ function graphqlQuery(token) {
   })
   .then(result => {
     
-    console.log("GraphQL result:", result);
+    // debug print
+    // console.log("GraphQL result:", result);
+    transactions = result.data.transaction;
   
     // Display all the user data
     displayUserInfo(result.data.user);
@@ -369,7 +370,8 @@ function displayXPLineChart(transactions) {
       type:transaction.type,
     }));
     
-    console.log("linechat data=>",lineChartData)
+    // debug print
+    //console.log("linechat data=>",lineChartData)
     //xpTimeChartData =lineChartData
     generateLineChart(lineChartData);
 }
@@ -491,6 +493,7 @@ function generateLineChart(lineChartData ) {
   // Append x and y axes
   svg.append("g")
   .attr("transform", `translate(0,${height})`)
+  .style("font-size", "16px")
   .call(d3.axisBottom(xScale));
 
   svg.append("g")
@@ -507,6 +510,7 @@ function generateLineChart(lineChartData ) {
   .attr("y", yScale(finalXpLabel))
   .attr("text-anchor", "end")
   .attr("alignment-baseline", "middle")
+  .style("font-size", "20px")
   .text(`Current XP: ${finalXpLabel}`);
 
   xScale.range([0, width]);
@@ -514,9 +518,52 @@ function generateLineChart(lineChartData ) {
 
 }
 
+// Function to filter data based on the selected language
+function filterDataByLanguage(data, language) {
+  const jsProjectsName = [
+    "make-your-game",
+    "make-your-game-score-handling",
+    "make-your-game-history",
+    "make-your-game-different-maps",
+    "real-time-forum",
+    "real-time-forum-typing in progress",
+    "graphql",
+    "social-network",
+    "social-network-cross-platform-appimage",
+    "mini-framework",
+    "bomberman-dom",
+  ];
+  
+  /* debug */
+/*   const jsProjects = barChartData
+  .filter(data => jsProjectsName.includes(data.project))
+  .map((data) => ({
+    project: data.project,
+    xp: data.xp,
+  }));
+  
+  // seperate the barChartData to jsProjects and goProjects
+  const goProjects = barChartData
+  .filter(data => !jsProjectsName.includes(data.project))
+  .map((data) => ({
+    project: data.project,
+    xp: data.xp,
+  }));
+  
+  console.log("all js projects:",jsProjects)
+  console.log("all go projects:",goProjects) */
+
+  if (language === 'Js') {
+    return data.filter(item => jsProjectsName.includes(item.project));
+  } else if (language === 'Go') {
+    return data.filter(item => !jsProjectsName.includes(item.project));
+  }
+  return data; // In case of any other selection, return all data
+}
+
 function displayXPBarChart(transactions){
   // debug print
-  console.log("all transaction data:",transactions)
+  // console.log("all transaction data:",transactions)
   
   barChartData = transactions
   .filter((transaction) => transaction.type === 'xp')
@@ -525,29 +572,19 @@ function displayXPBarChart(transactions){
     xp: transaction.amount,
   }));
   
-  const goData = transactions
-  .filter((transaction) => transaction.type === 'skill_go')
-  .map((transaction) => ({
-    project: transaction.object.name,
-    xp: transaction.amount,
-  }));
-  const jsData = transactions
-  .filter((transaction) => transaction.type === 'skill_js')
-  .map((transaction) => ({
-    project: transaction.object.name,
-    xp: transaction.amount,
-  }));
-
-
-  
-  console.log("all go prject data:",goData)
-  console.log("all javascript prject data:",jsData)
-  
-  generateXPBarChart(barChartData)
+   // Get the selected language from the dropdown
+   const selectedLanguage = document.getElementById('languageSelected').value;
+   // debug print
+   // console.log("selected Language:",selectedLanguage);
+   
+   // Filter data based on the selected language
+    selectedData = filterDataByLanguage(barChartData, selectedLanguage);
+ 
+   generateXPBarChart(selectedData);
 }
 
-function generateXPBarChart(barChartData) {
-  console.log("all the bar chart data:",barChartData);
+function generateXPBarChart(selectedData ) {
+  console.log("selected data for bar chart:",selectedData );
   // Clear existing SVG content
   d3.select("#barChart").selectAll("*").remove();
 
@@ -558,7 +595,7 @@ function generateXPBarChart(barChartData) {
   const height = 300 - margin.top - margin.bottom; // Set an initial height or adjust as needed
 
   // Group data by project name and calculate total XP for each project
-  const projectsData = d3.group(barChartData, d => d.project);
+  const projectsData = d3.group(selectedData, d => d.project);
   const projectXpData = Array.from(projectsData, ([projectName, projectData]) => ({
     projectName,
     totalXp: d3.sum(projectData, d => d.xp),
@@ -575,30 +612,33 @@ function generateXPBarChart(barChartData) {
   const xScale = d3.scaleBand()
     .domain(projectXpData.map(d => d.projectName))
     .range([0, width])
-    .padding(0.1);
-
+    .padding(0.1)
+    
+  // Define a maximum bar width, to avoid if the data only few then become too big
+  const maxBarWidth = 50; 
+  
   const yScale = d3.scaleLinear()
     .domain([0, d3.max(projectXpData, d => d.totalXp)])
     .range([height, 0]);
 
-  // Draw the bars
-  svg.selectAll("rect")
+     // Draw the bars
+    svg.selectAll("rect")
     .data(projectXpData)
     .enter().append("rect")
     .attr("class", "rect")
-    .attr("x", d => xScale(d.projectName))
+    .attr("x", d => xScale(d.projectName) + (xScale.bandwidth() - Math.min(xScale.bandwidth(), maxBarWidth)) / 2)  /* let the bar on top of it*/
     .attr("y", d => yScale(d.totalXp))
-    .attr("width", xScale.bandwidth())
+    .attr("width", d => Math.min(xScale.bandwidth(), maxBarWidth))
     .attr("height", d => height - yScale(d.totalXp))
     .attr("fill", "royalblue")
-    .on("mouseover", function (event, d) {  /* only show the lebel when hover over the bar*/ 
-      d3.select(this)
+    .on("mouseover", function (event, d) {
+      d3.select(this);
       
-    // add a label on top of each bar, when hover over the bar 
+    // Add a label on top of each bar when hovering
     svg.append("text")
       .attr("class", "hover-label")
-      .attr("x", xScale(d.projectName) + xScale.bandwidth() / 2)
-      .attr("y", yScale(d.totalXp) - 35)
+      .attr("x", xScale(d.projectName) + (xScale.bandwidth() - Math.min(xScale.bandwidth() , maxBarWidth)) / 2 + 15)   
+      .attr("y", yScale(d.totalXp) - 10)
       .attr("dy", ".75em")
       .attr("font-size", "25px")
       .attr("text-anchor", "middle")
@@ -612,19 +652,25 @@ function generateXPBarChart(barChartData) {
       svg.selectAll(".hover-label").remove();
     });
     
-
-  // Draw x and y axes
-  svg.append("g")
+    // Draw x and y axes
+    svg.append("g")
     .attr("transform", `translate(0,${height})`)
     .call(d3.axisBottom(xScale))
     .selectAll("text")
     .attr("transform", "rotate(-45)")
-    .style("text-anchor", "end");
+    .style("text-anchor", "end")
+    .style("font-size", "18px");
 
   svg.append("g")
     .call(d3.axisLeft(yScale));
     
 }
+
+// Event listener for language selection change
+document.getElementById('languageSelected').addEventListener('change', () => {
+  // Re-display the bar chart with the newly selected language
+  displayXPBarChart(transactions); // Ensure `transactions` data is available in the scope
+});
 
 function displaySkillInfo(transactions) {
   
@@ -636,14 +682,15 @@ function displaySkillInfo(transactions) {
     level: transaction.amount,
   }));
   
-  console.log("all level data:",levelData)
+  // debug print 
+  // console.log("all level data:",levelData)
   
   const maxLevel = Math.max(...levelData.map((data) => data.level));
   // currentLevel is the highest amount 
   let currentLevel = levelData.filter((data) => data.level === maxLevel)[0].level;
     
-  console.log("current level :",currentLevel)
-  
+  // debug print 
+  // console.log("current level :",currentLevel)
 
    // Define the types to exclude
    const excludeTypes = ["up", "down", "level","xp"];
@@ -663,7 +710,8 @@ function displaySkillInfo(transactions) {
   
   const skills =["skill_go","skill_js","skill_html","skill_css","skill_sql","skill_docker","skill_c","skill_back-end","skill_front-end","skill_sys-admin","skill_algo","skill_stats","skill_game"]
  
-  console.log('all filtered skills transactions====>',filteredSkillsTransactions);
+  // debug print
+  // console.log('all filtered skills transactions====>',filteredSkillsTransactions);
   
   // Create a map to store project skill information
   const projectSkills = {};
@@ -693,7 +741,7 @@ function displaySkillInfo(transactions) {
     }
   });
   // debug print
-  console.log("all project skills===========>",projectSkills)
+  // console.log("all project skills===========>",projectSkills)
   
   // Aggregate the highest skill amounts from all projects
   
@@ -709,7 +757,7 @@ function displaySkillInfo(transactions) {
   });
 
   // Debug print
-  console.log("highest amount by skill =======>", highestAmountBySkill);
+  // console.log("highest amount by skill =======>", highestAmountBySkill);
   skillsRadarData = highestAmountBySkill;
   
   // display result
@@ -974,5 +1022,5 @@ function handleResize() {
  generateAuditLine(upLineData,downLineData);
  generateSkillsRadarChart(skillsRadarData);
  generateLineChart(lineChartData);
- generateXPBarChart(barChartData);
+ generateXPBarChart(selectedData);
 }

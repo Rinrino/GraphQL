@@ -719,10 +719,10 @@ font-size: 4vw;
   }
    
   .logout-button2{
-    display: block;
+   display: block;
    align-self: center;
-   margin: 1rem auto;
-   margin-top: 0.4rem;
+   margin-right: 1.5rem;
+   margin-top: 1rem; 
    padding: 0.5rem 1rem; 
    letter-spacing: 1px;
   }
@@ -935,7 +935,12 @@ font-size: 4vw;
   .barChart{
     grid-area: barChart;
   }
-  
+  .chart-header {
+    flex-direction: column;
+  }
+  .graph-display-name{
+    width: auto;
+ }  
 }
 
 
