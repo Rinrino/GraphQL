@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 function displayDashboard() {
     // Show dashboard and hide login form
     document.getElementById('loginContainer').style.display = 'none';
-    document.getElementById('dashboardContainer').style.display = 'flex';
+    document.getElementById('dashboardContainer').style.display = 'grid';
   }
   
   
@@ -134,6 +134,7 @@ function displayUserInfo(data) {
   document.getElementById('login').textContent = user.login;
   document.getElementById('createdAt').textContent = formattedDateStringFrom(user.createdAt);
   document.getElementById('campus').textContent = capitalized(user.campus);
+  document.getElementById('email').textContent =  user.attrs.email;
   document.getElementById('fullName').textContent = user.attrs.firstName + " " + user.attrs.lastName;
   document.getElementById('userImage').src = user.attrs.image; 
 
@@ -223,7 +224,7 @@ function displayOnProgressInfo(user, progress) {
       projectItem.innerHTML = `
           <span class="f-ms14 f-cw">${currentProject}</span><br>
           ${membersExcludingUser.length > 0 ? `<span>with ${memberNames}</span><br>` : ''}
-          <h4>since <span class="f-ms12 f-cpp">${durationString}</span>,  <em>keep going!</em></h4>
+          <p>&#160;&#160;since <span class="f-ms12 f-cpp">${durationString}</span>,  <em>keep going!</em></p>
       `;
 
       // Append the project item to the list
@@ -240,11 +241,15 @@ function displayXPInfo(transactions){
   document.getElementById('totalXp').textContent = formatNumber(totalXp);
 
   const projectsList = document.getElementById('project-list');
+  
+  // Clear the existing list items
+  projectsList.innerHTML = '';
+  
   transactions
     .filter((transaction) => transaction.type === 'xp')
-    .slice(0, 3).forEach((project) => {
+    .slice(0, 5).forEach((project) => {
       const projectItem = document.createElement('li');
-      projectItem.textContent = 'Project' + ': ' +  `${project.object.name} - ${formatNumber(project.amount)}`;
+      projectItem.textContent =`${project.object.name} - ${formatNumber(project.amount)}`;
       projectsList.appendChild(projectItem);
   });
 }
@@ -533,16 +538,10 @@ function displayXPBarChart(transactions){
     xp: transaction.amount,
   }));
 
-  const levelData =  transactions
-  .filter((transaction) => transaction.type === 'level')
-  .map((transaction) => ({
-    project: transaction.object.name,
-    level: transaction.amount,
-  }));
+
   
   console.log("all go prject data:",goData)
   console.log("all javascript prject data:",jsData)
-  console.log("all level data:",levelData)
   
   generateXPBarChart(barChartData)
 }
@@ -628,7 +627,24 @@ function generateXPBarChart(barChartData) {
 }
 
 function displaySkillInfo(transactions) {
+  
+  // get current level
+  const levelData =  transactions
+  .filter((transaction) => transaction.type === 'level')
+  .map((transaction) => ({
+    project: transaction.object.name,
+    level: transaction.amount,
+  }));
+  
+  console.log("all level data:",levelData)
+  
+  const maxLevel = Math.max(...levelData.map((data) => data.level));
+  // currentLevel is the highest amount 
+  let currentLevel = levelData.filter((data) => data.level === maxLevel)[0].level;
     
+  console.log("current level :",currentLevel)
+  
+
    // Define the types to exclude
    const excludeTypes = ["up", "down", "level","xp"];
   
@@ -679,21 +695,6 @@ function displaySkillInfo(transactions) {
   // debug print
   console.log("all project skills===========>",projectSkills)
   
-   /* let skillsAmount = {};
-  
-  // Aggregate skill amounts from all projects
-  Object.values(projectSkills).forEach(project => {
-    Object.entries(project.skills).forEach(([skillType, amount]) => {
-      if (!skillsAmount[skillType]) {
-        skillsAmount[skillType] = 0;
-      }
-      skillsAmount[skillType] += amount;
-    });
-  }); 
-
-  // Debug print
-  console.log("skills amount by type =======>", skillsAmount);*/
-  
   // Aggregate the highest skill amounts from all projects
   
   let highestAmountBySkill = {};
@@ -710,6 +711,9 @@ function displaySkillInfo(transactions) {
   // Debug print
   console.log("highest amount by skill =======>", highestAmountBySkill);
   skillsRadarData = highestAmountBySkill;
+  
+  // display result
+  document.getElementById('level').textContent = currentLevel;
   generateSkillsRadarChart(skillsRadarData)
 }
    
@@ -900,6 +904,7 @@ function login(){
     
   const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
+  const rememberMe = document.getElementById('remember-me').checked;
   
   const credentials = btoa(`${username}:${password}`);
   const authEnpoint =  'https://learn.01founders.co/api/auth/signin';
@@ -923,19 +928,34 @@ function login(){
       throw new Error('Token not found in the response');
     }
     document.getElementById('error').innerHTML = '';
-
-    // Save the token in localStorage or cookie
-    localStorage.setItem('jwt', token);
     
-    // fetch data
-    graphqlQuery(localStorage.getItem('jwt'));
+    // Save the token in localStorage or cookie
+    if (rememberMe) {
+      localStorage.setItem('jwt', token);
+      localStorage.setItem('username', username);
+    } else {
+      sessionStorage.setItem('jwt', token);
+    }
+    
+     // fetch data
+    graphqlQuery(localStorage.getItem('jwt') || sessionStorage.getItem('jwt'));
     // Show logout button and hide login form
-    displayDashboard()
+    displayDashboard();
+
   })
   .catch(error => {
     document.getElementById('error').textContent = error.message;
   });
 }
+
+// Optional: Automatically fill the username if 'Remember Me' was previously selected
+window.onload = () => {
+  const rememberedUsername = localStorage.getItem('username');
+  if (rememberedUsername) {
+    document.getElementById('username').value = rememberedUsername;
+    document.getElementById('remember-me').checked = true;
+  }
+};
 
 function logout() {
   // Remove the token from localStorage or cookie
