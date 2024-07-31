@@ -95,8 +95,10 @@ body {
 .container {
   background: var(--black-0);
   border: 1px solid var(--black-2);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   box-shadow: 0 0 10px var( --shadow-dark-0);
+  
+
 }
 
 .login-container {
@@ -204,7 +206,7 @@ button:hover {
   margin: 1rem;
  /*  background: var(--grey-1);
   border-radius: var(--radius-md);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); */
+  box-shadow: 0 0 10px var( --shadow-dark-0); */
   height: calc(100vh - 16px);
   width:254px; 
 }
@@ -272,11 +274,9 @@ button:hover {
 .xp-info{
   grid-area: xpInfo;
   line-height: 1.5;
-  height: fit-content;
 }
 .audit-info{
   grid-area: auditInfo;
-  height: fit-content;
   font-size: 1.6rem;
 }
 .OnProgress{
@@ -331,10 +331,6 @@ button:hover {
   flex-direction: column;
   text-align: left;
   align-items: center;
-  background: var(--grey-2);
-  border-radius: var(--radius-md);
-/*   padding: 20px; */
-  box-shadow: var(--shadow-light-0);
 }
 
 
@@ -392,9 +388,9 @@ button:hover {
 /* end of audit-info*/
 
 .card {
-  background: var(--grey-1);
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  background: var(--grey-0);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 10px var( --shadow-dark-0);
   padding: 20px;
   margin: 0.8rem ;
   text-align: left;
@@ -403,9 +399,9 @@ button:hover {
 } 
 
 .large-card {
-  background: var(--grey-1);
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  background: var(--grey-0);
+  border-radius: var(--radius-md);
+  box-shadow: 0 0 10px var( --shadow-dark-0);
   padding: 20px;
   height: auto;
   text-align: left;
@@ -565,9 +561,9 @@ font-size: 4vw;
     width: auto;
     height: fit-content;
     box-sizing: border-box;
-    background: var(--grey-1);
+    background: var(--grey-0);
     border-radius: var(--radius-md);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 10px var( --shadow-dark-0);
     padding: 16px;
     margin-left: 16px;
   }
@@ -682,9 +678,9 @@ font-size: 4vw;
     width: auto;
     height: fit-content;
     box-sizing: border-box;
-    background: var(--grey-1);
+    background: var(--grey-0);
     border-radius: var(--radius-md);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 10px var( --shadow-dark-0);
     padding: 16px;
     margin-left: 16px;
   }
@@ -809,9 +805,9 @@ font-size: 4vw;
     width: auto;
     height: fit-content;
     box-sizing: border-box;
-    background: var(--grey-1);
+    background: var(--grey-0);
     border-radius: var(--radius-md);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 10px var( --shadow-dark-0);
     padding: 16px;
     margin-left: 16px;
   }
@@ -944,3 +940,19 @@ font-size: 4vw;
 }
 
 
+/*add mouse movement affect*/
+.container .grid{
+  position: relative;
+}
+.container {
+ 
+  & .grid {
+    &:hover {
+      background-attachment: fixed;
+      background-image: radial-gradient(
+              circle at var(--x, 0) var(--y, 0),
+              hsl(0 0% 1% / 0.25),
+              hsl(0 0% 1% / 0.0125) 10rem)
+    }
+  }
+};
