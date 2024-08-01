@@ -151,7 +151,7 @@ function displayOnProgressInfo(user, progress) {
       )
   );
   // debug print
-  // console.log("All working projects", allCurrentWorkingProjects);
+   console.log("All working projects", allCurrentWorkingProjects);
 
   // Clear existing project info in the DOM
   const projectsContainer = document.getElementById('workingProjectsList');
@@ -160,78 +160,90 @@ function displayOnProgressInfo(user, progress) {
   // Track processed projects to avoid duplicates
   const processedProjects = new Set();
 
-  // Check all current projects and display one by one
-  allCurrentWorkingProjects.forEach(prog => {
-      const currentProject = prog.object.name;
+    // Check all current projects and display one by one
+  if (allCurrentWorkingProjects.length === 0) {
+    // Display a message if there are no working projects
+    const noProjectsItem = document.createElement('li');
+    noProjectsItem.classList.add('no-projects-item'); // Apply class for styling if needed
+    noProjectsItem.innerHTML = `
+      <span class="f-ms14 f-cw">No ongoing projects</span><br>
+      <p>Keep checking for new opportunities!</p>
+    `;
+    projectsContainer.appendChild(noProjectsItem);
+  } else {
+    // Check all current projects and display one by one
+    allCurrentWorkingProjects.forEach(prog => {
+        const currentProject = prog.object.name;
 
-      // Skip this project if it's already been processed
-      if (processedProjects.has(currentProject)) {
-          return;
-      }
-      
-      // Add project to the processed set
-      processedProjects.add(currentProject);
+        // Skip this project if it's already been processed
+        if (processedProjects.has(currentProject)) {
+            return;
+        }
+        
+        // Add project to the processed set
+        processedProjects.add(currentProject);
 
-      // Filter groups where the logged-in user is a member and group status is "working"
-      const groupData = prog.object.groups.filter(group =>
-          group.status === "working" && group.members.some(member => member.userLogin === userLogin)
-      );
+        // Filter groups where the logged-in user is a member and group status is "working"
+        const groupData = prog.object.groups.filter(group =>
+            group.status === "working" && group.members.some(member => member.userLogin === userLogin)
+        );
 
-      // Extract and flatten the members array
-      const members = groupData.flatMap(group => group.members);
+        // Extract and flatten the members array
+        const members = groupData.flatMap(group => group.members);
 
-      // Exclude the logged-in user
-      const membersExcludingUser = members.filter(member => member.userLogin !== userLogin);
+        // Exclude the logged-in user
+        const membersExcludingUser = members.filter(member => member.userLogin !== userLogin);
 
-      // Handle members
-      let memberNames = '';
-      if (membersExcludingUser.length > 1) {
-          // More than one member: Exclude the last one for the 'and' statement
-          const memberNamesExcludingLast = membersExcludingUser.slice(0, -1)
-              .map(member => `<span style="color: #007bff;">${member.userLogin}</span>`)
-              .join(', ');
-          const lastMember = membersExcludingUser.slice(-1)[0];
-          const lastMemberName = `<span style="color: #007bff;">${lastMember.userLogin}</span>`;
-          memberNames = `${memberNamesExcludingLast}${memberNamesExcludingLast ? ', and ' : ''}${lastMemberName}`;
-      } else if (membersExcludingUser.length === 1) {
-          // Only one other member
-          const lastMember = membersExcludingUser[0];
-          memberNames = `<span style="color: #007bff;">${lastMember.userLogin}</span>`;
-      }
+        // Handle members
+        let memberNames = '';
+        if (membersExcludingUser.length > 1) {
+            // More than one member: Exclude the last one for the 'and' statement
+            const memberNamesExcludingLast = membersExcludingUser.slice(0, -1)
+                .map(member => `<span style="color: #007bff;">${member.userLogin}</span>`)
+                .join(', ');
+            const lastMember = membersExcludingUser.slice(-1)[0];
+            const lastMemberName = `<span style="color: #007bff;">${lastMember.userLogin}</span>`;
+            memberNames = `${memberNamesExcludingLast}${memberNamesExcludingLast ? ', and ' : ''}${lastMemberName}`;
+        } else if (membersExcludingUser.length === 1) {
+            // Only one other member
+            const lastMember = membersExcludingUser[0];
+            memberNames = `<span style="color: #007bff;">${lastMember.userLogin}</span>`;
+        }
 
 
-      // Get project start time
-      const projectStartAt = new Date(prog.createdAt);
+        // Get project start time
+        const projectStartAt = new Date(prog.createdAt);
 
-      // Calculate the duration
-      const now = new Date();
-      const durationMillis = now - projectStartAt;
-      const durationSecs = Math.floor(durationMillis / 1000);
+        // Calculate the duration
+        const now = new Date();
+        const durationMillis = now - projectStartAt;
+        const durationSecs = Math.floor(durationMillis / 1000);
 
-      const weeks = Math.floor(durationSecs / (7 * 24 * 60 * 60));
-      const days = Math.floor((durationSecs % (7 * 24 * 60 * 60)) / (24 * 60 * 60));
-      const hours = Math.floor((durationSecs % (24 * 60 * 60)) / (60 * 60));
-      const minutes = Math.floor((durationSecs % (60 * 60)) / 60);
-      const seconds = durationSecs % 60;
+        const weeks = Math.floor(durationSecs / (7 * 24 * 60 * 60));
+        const days = Math.floor((durationSecs % (7 * 24 * 60 * 60)) / (24 * 60 * 60));
+        const hours = Math.floor((durationSecs % (24 * 60 * 60)) / (60 * 60));
+        const minutes = Math.floor((durationSecs % (60 * 60)) / 60);
+        const seconds = durationSecs % 60;
 
-      // Create the duration string
-      const durationString = `${weeks}w ${days}d ${hours}h ${minutes}m ${seconds}s`;
+        // Create the duration string
+        const durationString = `${weeks}w ${days}d ${hours}h ${minutes}m ${seconds}s`;
 
-      // Create project item
-      const projectItem = document.createElement('li');
-      projectItem.classList.add('project-item'); // Apply class for styling
-      
-      // Only add "with" and memberNames if there are other members
-      projectItem.innerHTML = `
-          <span class="f-ms14 f-cw">${currentProject}</span><br>
-          ${membersExcludingUser.length > 0 ? `<span>with ${memberNames}</span><br>` : ''}
-          <p>&#160;&#160;since <span class="f-ms12 f-cpp">${durationString}</span>,  <em>keep going!</em></p>
-      `;
+        // Create project item
+        const projectItem = document.createElement('li');
+        projectItem.classList.add('project-item'); // Apply class for styling
+        
+        // Only add "with" and memberNames if there are other members
+        projectItem.innerHTML = `
+            <span class="f-ms14 f-cw">${currentProject}</span><br>
+            ${membersExcludingUser.length > 0 ? `<span>with ${memberNames}</span><br>` : ''}
+            <p>&#160;&#160;since <span class="f-ms12 f-cpp">${durationString}</span>,  <em>keep going!</em></p>
+        `;
 
-      // Append the project item to the list
-      projectsContainer.appendChild(projectItem);
+        // Append the project item to the list
+        projectsContainer.appendChild(projectItem);
 
-  });
+    });
+  }
 }
 
 function displayXPInfo(transactions){
@@ -563,6 +575,15 @@ function filterDataByLanguage(data, language) {
     "mini-framework",
     "bomberman-dom",
   ];
+  const rustProjectsName = [
+    "smart-road",
+    "filler",
+    "multiplayer-fps",
+    "rt",
+    "0-SHELL",
+    "0-SHELL-job-control",
+    "0-SHELL-scripting",
+  ];
   
   /* debug */
 /*   const jsProjects = barChartData
@@ -585,8 +606,12 @@ function filterDataByLanguage(data, language) {
 
   if (language === 'Js') {
     return data.filter(item => jsProjectsName.includes(item.project));
+  } else if (language === 'Rust') {
+    return data.filter(item => rustProjectsName.includes(item.project));
   } else if (language === 'Go') {
-    return data.filter(item => !jsProjectsName.includes(item.project));
+    return data.filter(item =>
+      !jsProjectsName.includes(item.project) && !rustProjectsName.includes(item.project)
+    );
   }
   return data; // In case of any other selection, return all data
 }
@@ -610,14 +635,37 @@ function displayXPBarChart(transactions){
    // Filter data based on the selected language
     selectedData = filterDataByLanguage(barChartData, selectedLanguage);
  
-   generateXPBarChart(selectedData);
+   generateXPBarChart(selectedData,selectedLanguage);
 }
 
-function generateXPBarChart(selectedData ) {
+function generateXPBarChart(selectedData,selectedLanguage ) {
   console.log("selected data for bar chart:",selectedData );
   // Clear existing SVG content
   d3.select("#barChart").selectAll("*").remove();
-
+  // Clear any existing no-data message
+  const noDataMessage = barChartContainer.querySelector('.no-data-message');
+  if (noDataMessage) {
+    noDataMessage.remove();
+  }
+ 
+   const barChartSvg = document.getElementById('barChart');
+  
+   // Display a message if there are no projects for the selected language
+   if (selectedData.length === 0) {
+    // Hide the SVG
+    barChartSvg.style.display = 'none';
+    const noDataMessage = document.createElement('div');
+    noDataMessage.style.marginBottom = '20px'; 
+    noDataMessage.className = 'no-data-message';
+    noDataMessage.innerHTML = `
+      <p>No projects available for the selected language: ${selectedLanguage}</p>
+    `;
+    barChartContainer.appendChild(noDataMessage);
+    return; // Exit the function as there's no data to display
+  }
+    // Show the SVG if there is data
+  barChartSvg.style.display = 'block';
+  
   // Set up scales with dynamic dimensions based on parent div
   const parentDiv = document.getElementById('barChartContainer');
   const margin = { top: 40, right: 60, bottom: 20, left: 60};
