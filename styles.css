@@ -274,16 +274,20 @@ button:hover {
 .xp-info{
   grid-area: xpInfo;
   line-height: 1.5;
+  margin: 10px 10px 10px 20px;
 }
 .audit-info{
   grid-area: auditInfo;
   font-size: 1.6rem;
+  margin: 10px 10px 10px 20px;
 }
 .OnProgress{
   grid-area: OnProgress;
+  margin: 10px;
 }
 .radarChart{
   grid-area: radarChart;
+  margin: 10px 20px 10px 10px;
 }
 
 .radarChart-header {
@@ -306,9 +310,6 @@ button:hover {
 
 .dashboard-bottom{
   grid-area: bottomSection;
- /*  flex: 2; */
-/*   display: flex;
-  justify-content: space-between; */
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-areas: 
@@ -317,12 +318,12 @@ button:hover {
 
 .lineChart{
   grid-area: lineChart;
-  margin:0 8px 16px 16px;
+  margin: 10px 10px 20px 20px;
 }
 
 .barChart{
   grid-area: barChart;
-  margin:0 16px 16px 8px;
+  margin: 10px 20px 20px 10px;
 }
 
 /* Right section card */
@@ -387,28 +388,18 @@ button:hover {
   }
 /* end of audit-info*/
 
-.card {
+.card{
   background: var(--grey-0);
   border-radius: var(--radius-md);
   box-shadow: 0 0 10px var( --shadow-dark-0);
   padding: 20px;
-  margin: 0.8rem ;
   text-align: left;
   align-items: center;
   font-size: 1.4rem;
 } 
 
-.large-card {
-  background: var(--grey-0);
-  border-radius: var(--radius-md);
-  box-shadow: 0 0 10px var( --shadow-dark-0);
-  padding: 20px;
-  height: auto;
-  text-align: left;
-}
 
-.card h2,
-.large-card h2 {
+.card h2 {
   margin-bottom: 20px;
   color: #ddd;
 }
@@ -428,7 +419,6 @@ button:hover {
 #user-info,
 #audit-info {
   list-style-type: none;
-  margin-right: 10px;
 }
 
 .line {
@@ -552,7 +542,13 @@ font-size: 4vw;
     padding: 0;
     margin: auto;
   }
-    
+  .header h1{
+    font-size: 4.5vw;
+    line-height: normal;
+    margin: 0 20px;
+    align-items: center;
+  }
+  
   .left-section {
     position: relative; /*cancel the abslute*/
     grid-area: left-section;
@@ -565,7 +561,7 @@ font-size: 4vw;
     border-radius: var(--radius-md);
     box-shadow: 0 0 10px var( --shadow-dark-0);
     padding: 16px;
-    margin-left: 16px;
+    margin: 20px 20px 10px 20px;
   }
   .card-user{
     box-sizing: border-box;
@@ -573,7 +569,7 @@ font-size: 4vw;
     flex-direction: row;
     justify-content: center;
     align-items: center; /* Center the image and name vertically */
-    margin:16px;
+    margin:20px auto;
   }
   .card-user .list-item{
     font-size: 1.18rem;
@@ -618,17 +614,21 @@ font-size: 4vw;
   .xp-info{
     grid-area: xpInfo;
     height: fit-content;
+    margin: 10px 10px 10px 20px;
   }
   .audit-info{
     grid-area: auditInfo;
     height: fit-content;
+    margin: 10px 10px 10px 20px;
   }
   .OnProgress{
     grid-area: OnProgress;
     font-size: 1.4rem;
+    margin: 10px 10px 10px 20px;
   }  
   .radarChart{
     grid-area: radarChart;
+    margin: 10px 20px 10px 10px;
   }
   
   .dashboard-bottom{
@@ -643,9 +643,11 @@ font-size: 4vw;
   
   .lineChart{
     grid-area: lineChart;
+    margin: 10px 20px;
   }
   .barChart{
     grid-area: barChart;
+    margin: 10px 20px 20px 20px;
   }
 }
 
@@ -669,6 +671,12 @@ font-size: 4vw;
     padding: 0;
     margin: auto;
   }
+  .header h1{
+    font-size: 4vw;
+    line-height: normal;
+    margin: 0 20px;
+    align-items: center;
+  }
     
   .left-section {
     position: relative; /*cancel the abslute*/
@@ -682,7 +690,7 @@ font-size: 4vw;
     border-radius: var(--radius-md);
     box-shadow: 0 0 10px var( --shadow-dark-0);
     padding: 16px;
-    margin-left: 16px;
+    margin: 20px 20px 10px 20px;
   }
   .card-user{
     box-sizing: border-box;
@@ -690,7 +698,7 @@ font-size: 4vw;
     flex-direction: row;
     justify-content: center;
     align-items: center; /* Center the image and name vertically */
-    margin:16px;
+    margin:20px auto;
   }
   .card-user .list-item{
     font-size: 1.18rem;
@@ -737,17 +745,21 @@ font-size: 4vw;
    .xp-info{
      grid-area: xpInfo;
      height: fit-content;
+     margin:10px 10px 10px 20px ;
    }
    .audit-info{
      grid-area: auditInfo;
      height: fit-content;
+     margin:10px 10px 10px 20px ;
    }
    .OnProgress{
      grid-area: OnProgress;
      font-size: 1.4rem;
+     margin:10px 20px 10px 10px ;
    }  
    .radarChart{
      grid-area: radarChart;
+     margin:10px 20px;
    }
    
    .f-md2{
@@ -768,11 +780,14 @@ font-size: 4vw;
    }
    
    .lineChart{
-     grid-area: lineChart;
-   }
-   .barChart{
-     grid-area: barChart;
-   }
+    grid-area: lineChart;
+    margin:10px 20px;
+  }
+  .barChart{
+    grid-area: barChart;
+    margin:10px 20px 20px 20px;
+  }
+ 
  }
  
 /* mobile */
@@ -796,6 +811,12 @@ font-size: 4vw;
     padding: 0;
     margin: auto;
   }
+  .header h1{
+    font-size: 5vw;
+    line-height: normal;
+    margin: 0 20px;
+    align-items: center;
+  }
     
   .left-section {
     position: relative; /*cancel the abslute*/
@@ -811,13 +832,18 @@ font-size: 4vw;
     padding: 16px;
     margin-left: 16px;
   }
+  
+  .card{
+    margin:10px 20px;
+   }
+   
   .card-user{
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center; /* Center the image and name vertically */
-    margin:16px;
+    margin:20px auto;
     
     @media(max-width: 375px){
       flex-direction: column;      
@@ -875,7 +901,7 @@ font-size: 4vw;
   .header h1{
     font-size: 5vw;
     line-height: normal;
-    margin: 0;
+    margin: 0 20px;
     align-items: center;
   }
  
@@ -922,21 +948,24 @@ font-size: 4vw;
     grid-template-areas: 
     "lineChart" 
     "barChart";
-    column-gap: 0.16rem;
   }
-  
   .lineChart{
     grid-area: lineChart;
   }
   .barChart{
     grid-area: barChart;
+    margin: 10px 20px 20px 20px;
   }
-  .chart-header {
+    .chart-header {
     flex-direction: column;
   }
   .graph-display-name{
     width: auto;
  }  
+
+  #barChart .tick text {
+    font-size: 12px !important;
+  }
 }
 
 

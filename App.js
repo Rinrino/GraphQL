@@ -489,13 +489,43 @@ function generateLineChart(lineChartData ) {
     d3.select(this).transition().duration(200).attr("fill", "white"); // Revert color on mouse out with transition
     tooltip.transition().duration(200).style("opacity", 0); // Hide the tooltip with transition
   });
+  
+  
+  // Custom function to display month and year
+  let previousYear = null;
+
+  const tickFormat = (date) => {
+    const formatMonth = d3.timeFormat("%b"); // Format: Jan, Feb, Mar, etc.
+    const formatYear = d3.timeFormat("%Y"); // Format: 2024, 2025, etc.
+
+    const currentYear = d3.timeFormat("%Y")(date);
+
+    // Show both year and month if year changes
+    if (currentYear !== previousYear) {
+      previousYear = currentYear;
+      return `${formatMonth(date)}\n${formatYear(date)}`;
+    } else {
+      return formatMonth(date);
+    }
+  };
 
   // Append x and y axes
   svg.append("g")
   .attr("transform", `translate(0,${height})`)
   .style("font-size", "16px")
-  .call(d3.axisBottom(xScale));
-
+  .call(d3.axisBottom(xScale).tickFormat(tickFormat))
+  .selectAll(".tick text")
+  .each(function(d, i) {
+    const text = d3.select(this);
+    const lines = text.text().split('\n');
+    text.text(''); // Clear existing text
+    lines.forEach((line, index) => {
+      text.append("tspan")
+        .text(line)
+        .attr("x", 0)
+        .attr("dy", index === 0 ? 0 : "1.2em");
+    });
+  });
   svg.append("g")
   .call(d3.axisLeft(yScale));
 
@@ -924,6 +954,17 @@ function formattedDateStringFrom(dateString) {
   return formattedDate
 }
 
+// Custom date formatting function for x-axis labels
+function formatMonth(dateString) {
+  var date = new Date(dateString);
+
+  // Define options to get only the short month name
+  var options = { month: 'short' };
+
+  var formattedMonth = date.toLocaleDateString('en-GB', options);
+  return formattedMonth;
+}
+  
 function capitalized(text) {
   return text[0].toUpperCase() + text.slice(1).toLowerCase()
 }
