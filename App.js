@@ -590,7 +590,7 @@ function generateXPBarChart(selectedData ) {
 
   // Set up scales with dynamic dimensions based on parent div
   const parentDiv = document.getElementById('barChartContainer');
-  const margin = { top: 40, right: 20, bottom: 20, left: 20};
+  const margin = { top: 40, right: 60, bottom: 20, left: 60};
   const width = parentDiv.clientWidth - margin.left - margin.right;
   const height = 300 - margin.top - margin.bottom; // Set an initial height or adjust as needed
 
