@@ -107,7 +107,6 @@ function graphqlQuery(token) {
     
     // debug print
     // console.log("GraphQL result:", result);
-    transactions = result.data.transaction;
   
     /*test data*/
   /*   const userTest = [{ login: "testUser" }];
@@ -187,6 +186,8 @@ function displayOnProgressInfo(user, progress) {
     projectsContainer.appendChild(noProjectsItem);
   } else {
     
+
+    
     // Check all current projects and display one by one, also check how many group also working on that project
     allCurrentWorkingProjects.forEach(prog => {
         const currentProject = prog.object.name;
@@ -199,17 +200,14 @@ function displayOnProgressInfo(user, progress) {
         // Add project to the processed set
         processedProjects.add(currentProject);
         
-          // Filter groups the group status is "finished"
-          const  setupGroupsCount = prog.object.groups.filter(group =>group.status === "setup").length;
-          console.log("in totall setup group====>", setupGroupsCount )
-        
-        // Filter groups the group status is also "working"
-        const workingGroupsCount = prog.object.groups.filter(group =>group.status === "working").length;
-        console.log("in totall working group====>",workingGroupsCount)
-        
-         // Filter groups the group status is "finished"
-         const  finishedGroupsCount = prog.object.groups.filter(group =>group.status === "finished").length;
-         console.log("in totall finished group====>", finishedGroupsCount )
+        // Filter groups
+        const workingGroups = prog.object.groups.filter(group => group.status === "working");
+        console.log("all working group:",workingGroups);
+        const finishedGroups = prog.object.groups.filter(group => group.status === "finished");
+        console.log("all finished group:",finishedGroups);
+
+        const workingGroupsCount = workingGroups.length;
+        const finishedGroupsCount = finishedGroups.length;
 
         // Filter groups where the logged-in user is a member and group status is "working"
         const groupData = prog.object.groups.filter(group =>
@@ -227,15 +225,15 @@ function displayOnProgressInfo(user, progress) {
         if (membersExcludingUser.length > 1) {
             // More than one member: Exclude the last one for the 'and' statement
             const memberNamesExcludingLast = membersExcludingUser.slice(0, -1)
-                .map(member => `<span style="color: #007bff;">${member.userLogin}</span>`)
+                .map(member => `<span class="f-cb";">${member.userLogin}</span>`)
                 .join(', ');
             const lastMember = membersExcludingUser.slice(-1)[0];
-            const lastMemberName = `<span style="color: #007bff;">${lastMember.userLogin}</span>`;
+            const lastMemberName = `<span class="f-cb">${lastMember.userLogin}</span>`;
             memberNames = `${memberNamesExcludingLast}${memberNamesExcludingLast ? ', and ' : ''}${lastMemberName}`;
         } else if (membersExcludingUser.length === 1) {
             // Only one other member
             const lastMember = membersExcludingUser[0];
-            memberNames = `<span style="color: #007bff;">${lastMember.userLogin}</span>`;
+            memberNames = `<span class="f-cb">${lastMember.userLogin}</span>`;
         }
 
 
@@ -263,24 +261,72 @@ function displayOnProgressInfo(user, progress) {
         // Only add "with" and memberNames if there are other members
         projectItem.innerHTML = `
             <span class="f-ms14 f-cw">${currentProject}</span> 
-            <span class="f-cw2 f-ms12">&#160;&#160;(</span>
-            <span class="f-cg">${setupGroupsCount}</span>
-            <span class="f-cw2 f-ms12">${workingGroupsCount <= 1 ? ' group' : ' groups'} setup,</span>
-            <span class="f-cg">${workingGroupsCount}</span>
-            <span class="f-cw2 f-ms12">${workingGroupsCount <= 1 ? ' group' : ' groups'} working,</span>
-            <span class="f-cg">${finishedGroupsCount}</span>
-            <span class="f-cw2 f-ms12">${finishedGroupsCount <= 1 ? ' group' : ' groups'} finished)</span><br>
-   
+            <span class="f-cg3 working-count">${workingGroupsCount}</span>
+            <span class="f-cw2 f-ms12">${workingGroupsCount === 1 ? ' group' : ' groups'} working,</span>
+            <span class="f-cg3 finished-count">${finishedGroupsCount}</span>
+            <span class="f-cw2 f-ms12">${finishedGroupsCount === 1 ? ' group' : ' groups'} finished)</span><br>
             ${membersExcludingUser.length > 0 ? `<span style="margin-top: 10px; display: inline-block;">with ${memberNames}</span><br>` : ''}
             <p>&#160;&#160;since <span class="f-ms12 f-cpp">${durationString}</span>,  <em>keep going!</em></p>
         `;
 
         // Append the project item to the list
         projectsContainer.appendChild(projectItem);
+        
+        // Add event listeners
+        projectItem.querySelector('.working-count').addEventListener('click', () =>  showGroupDetails(currentProject, workingGroups));
+        projectItem.querySelector('.finished-count').addEventListener('click', () =>  showGroupDetails(currentProject, finishedGroups));
+        projectItem.querySelector('.finished-count').addEventListener('click', () =>  showGroupDetails(currentProject, finishedGroups));
 
     });
   }
+  
+   // Function to show the overlay with group details
+   function showGroupDetails(projectName, groups) {
+    
+     // Check if groups is defined and is an array, and not 0
+     if (!Array.isArray(groups) || groups.length === 0) {
+      console.warn('No groups available or invalid groups data');
+      return;
+    }
+    
+    // Debugging: Log the groups data
+    console.log("projectName:", projectName);
+    console.log("groups data passed:", groups);
+    
+    const dataType = groups[0].status;
+    
+   
+    // Get the overlay and content elements
+    const overlay = document.getElementById('groupDetailsOverlay');
+    const content = document.getElementById('groupDetailsContent');
+
+    // Set the project name
+    let contentHTML = `<h2>${projectName}</h2>`;
+    
+    // Add the group status line
+    contentHTML += `<p class="f-cw2">All <span class="f-cpp">${groups.length}</span> ${dataType} ${groups.length === 1 ? ' group' : ' groups'}</p>`;
+  
+
+    // List each group's captain username
+    contentHTML += '<ul>';
+    groups.forEach(group => {
+      contentHTML += `<li class="f-cw2">Group Captain: <span class="f-cg2"> ${group.captainLogin}</span></li>`;
+    });
+    contentHTML += '</ul>';
+
+    // Set the inner HTML of the content container
+    content.innerHTML = contentHTML;
+
+    // Show the overlay
+    overlay.style.display = 'block';
+  }
+  
 }
+
+  function closeOverlay() {
+    document.getElementById('groupDetailsOverlay').style.display = 'none';
+  }
+
 
 function displayXPInfo(transactions){
   const totalXp = transactions

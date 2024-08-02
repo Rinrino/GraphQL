@@ -283,6 +283,50 @@ button:hover {
   grid-area: OnProgress;
   margin: 10px;
 }
+.working-count,
+.finished-count{
+  font-weight: var(--font-weight-700);
+}
+
+.working-count,
+.finished-count {
+  text-decoration: underline;
+}
+
+.working-count:hover,
+.finished-count:hover {
+  cursor: pointer;
+}
+
+.overlay {
+  display: none; 
+  position: fixed; 
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Black background with transparency */
+  border-radius:var(--radius-mm);
+  z-index: 1000; 
+  overflow: auto; 
+}
+
+.overlay-content {
+  position: relative;
+  margin: auto;
+  padding: 20px;
+  width: 80%;
+  max-width: 500px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 30px;
+  cursor: pointer;
+}
+
 .radarChart{
   grid-area: radarChart;
   margin: 10px 20px 10px 10px;
@@ -522,7 +566,11 @@ font-size: 4vw;
   color: var(--yellow-1);
 }
 
-.f-cg{
+.f-cg2{
+  color:var(--green-2)
+}
+
+.f-cg3{
   color:var(--green-3)
 }
 

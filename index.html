@@ -115,7 +115,14 @@
           <!-- on progress info-->
           <div id="OnProgress" class="grid card OnProgress">
             <h2 class="bb-01">Currently working on</h2>
-            <div id="workingProjectsList"></div>        
+            <div id="workingProjectsList"></div>
+            <!-- Overlay container -->
+            <div id="groupDetailsOverlay" class="overlay">
+              <div class="overlay-content card">
+                <span class="close-btn" onclick="closeOverlay()">&times;</span>
+                <div id="groupDetailsContent"></div>
+              </div>
+            </div>
           </div>
           
           <!-- skill radar chart-->
