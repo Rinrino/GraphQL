@@ -33,7 +33,7 @@
   --green-0: #16B3C9;
   --green-1: rgb(17 144 163);
   --green-2: rgb(14 109 124);
-  --green-3: #176267;
+  --green-3: #09de50;
   
   /* blue */
   --blue-0: #1660aa;
@@ -256,7 +256,7 @@ button:hover {
   padding: 0;
   margin: auto;
 }
- 
+
 /* Container for top section */ /*try use grid*/
 .dashboard-top {
   grid-area: topSection;
@@ -507,6 +507,10 @@ font-size: 4vw;
   color:var(--white-0);
 }
 
+.f-cw2{
+  color:var(--white-2);
+}
+
 .f-cpp{
   color:var(--purple-pink);
 }
@@ -516,6 +520,10 @@ font-size: 4vw;
 
 .f-cy{
   color: var(--yellow-1);
+}
+
+.f-cg{
+  color:var(--green-3)
 }
 
 
@@ -541,7 +549,7 @@ font-size: 4vw;
     margin: auto;
   }
   .header h1{
-    font-size: 4.5vw;
+    font-size: 4vw;
     line-height: normal;
     margin: 0 20px;
     align-items: center;
@@ -596,7 +604,8 @@ font-size: 4vw;
    align-self: center;
    margin-right: 1.5rem;
    margin-top: 1rem; 
-   padding: 0.8rem;
+   padding: 0.4rem 0.8rem;
+   font-size: 1rem;
    letter-spacing: 1px;
   }
   .dashboard-top{
@@ -725,7 +734,8 @@ font-size: 4vw;
    align-self: center;
    margin-right: 1.5rem;
    margin-top: 1rem; 
-   padding: 0.5rem 1rem; 
+   padding: 0.4rem 0.8rem; 
+   font-size: 1rem;
    letter-spacing: 1px;
   }
   

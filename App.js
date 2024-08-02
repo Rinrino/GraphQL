@@ -109,9 +109,23 @@ function graphqlQuery(token) {
     // console.log("GraphQL result:", result);
     transactions = result.data.transaction;
   
+    /*test data*/
+  /*   const userTest = [{ login: "testUser" }];
+    const progress = [
+      { 
+        object: { 
+          name: "Project 1", 
+          groups: [
+            { status: "finished", members: [{ userLogin: "testUser" }] }
+          ] 
+        } 
+      }
+    ]; */
     // Display all the user data
     displayUserInfo(result.data.user);
     displayOnProgressInfo(result.data.user,result.data.progress)
+    // debug print
+    // displayOnProgressInfo(userTest,progress)
     displayXPInfo(result.data.transaction)
     displayAuditInfo(result.data.transaction)
     displaySkillInfo(result.data.transaction)
@@ -123,6 +137,7 @@ function graphqlQuery(token) {
     console.error(error);
   });
 }
+
 
 
 function displayUserInfo(data) {
@@ -167,14 +182,15 @@ function displayOnProgressInfo(user, progress) {
     noProjectsItem.classList.add('no-projects-item'); // Apply class for styling if needed
     noProjectsItem.innerHTML = `
       <span class="f-ms14 f-cw">No ongoing projects</span><br>
-      <p>Keep checking for new opportunities!</p>
+      <p class="f-cpp"><em>Keep checking for new opportunities!<em></p>
     `;
     projectsContainer.appendChild(noProjectsItem);
   } else {
-    // Check all current projects and display one by one
+    
+    // Check all current projects and display one by one, also check how many group also working on that project
     allCurrentWorkingProjects.forEach(prog => {
         const currentProject = prog.object.name;
-
+        
         // Skip this project if it's already been processed
         if (processedProjects.has(currentProject)) {
             return;
@@ -182,6 +198,18 @@ function displayOnProgressInfo(user, progress) {
         
         // Add project to the processed set
         processedProjects.add(currentProject);
+        
+          // Filter groups the group status is "finished"
+          const  setupGroupsCount = prog.object.groups.filter(group =>group.status === "setup").length;
+          console.log("in totall setup group====>", setupGroupsCount )
+        
+        // Filter groups the group status is also "working"
+        const workingGroupsCount = prog.object.groups.filter(group =>group.status === "working").length;
+        console.log("in totall working group====>",workingGroupsCount)
+        
+         // Filter groups the group status is "finished"
+         const  finishedGroupsCount = prog.object.groups.filter(group =>group.status === "finished").length;
+         console.log("in totall finished group====>", finishedGroupsCount )
 
         // Filter groups where the logged-in user is a member and group status is "working"
         const groupData = prog.object.groups.filter(group =>
@@ -234,8 +262,16 @@ function displayOnProgressInfo(user, progress) {
         
         // Only add "with" and memberNames if there are other members
         projectItem.innerHTML = `
-            <span class="f-ms14 f-cw">${currentProject}</span><br>
-            ${membersExcludingUser.length > 0 ? `<span>with ${memberNames}</span><br>` : ''}
+            <span class="f-ms14 f-cw">${currentProject}</span> 
+            <span class="f-cw2 f-ms12">&#160;&#160;(</span>
+            <span class="f-cg">${setupGroupsCount}</span>
+            <span class="f-cw2 f-ms12">${workingGroupsCount <= 1 ? ' group' : ' groups'} setup,</span>
+            <span class="f-cg">${workingGroupsCount}</span>
+            <span class="f-cw2 f-ms12">${workingGroupsCount <= 1 ? ' group' : ' groups'} working,</span>
+            <span class="f-cg">${finishedGroupsCount}</span>
+            <span class="f-cw2 f-ms12">${finishedGroupsCount <= 1 ? ' group' : ' groups'} finished)</span><br>
+   
+            ${membersExcludingUser.length > 0 ? `<span style="margin-top: 10px; display: inline-block;">with ${memberNames}</span><br>` : ''}
             <p>&#160;&#160;since <span class="f-ms12 f-cpp">${durationString}</span>,  <em>keep going!</em></p>
         `;
 
