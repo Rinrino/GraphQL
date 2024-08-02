@@ -121,6 +121,9 @@ function graphqlQuery(token) {
       }
     ]; */
     // Display all the user data
+    
+    transactions = result.data.transaction;
+    
     displayUserInfo(result.data.user);
     displayOnProgressInfo(result.data.user,result.data.progress)
     // debug print
