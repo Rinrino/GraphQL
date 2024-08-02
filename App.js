@@ -310,7 +310,7 @@ function displayOnProgressInfo(user, progress) {
     // List each group's captain username
     contentHTML += '<ul>';
     groups.forEach(group => {
-      contentHTML += `<li class="f-cw2">Group Captain: <span class="f-cg2"> ${group.captainLogin}</span></li>`;
+      contentHTML += `<li class="f-cw2">Captain: <span class="f-cg2"> ${group.captainLogin}</span></li>`;
     });
     contentHTML += '</ul>';
 
