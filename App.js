@@ -425,11 +425,12 @@ function showXPDetailOverlay() {
         <div class="project-name">${projectName} - ${formatNumber(project.amount)}</div>
         <div class="finished-date">Finished date: ${formattedDate} at ${formattedTime}</div>
          <div>
-         <span class="f-cg3 working-count">${workingGroupsCount}</span>
-         <span class="f-cw2 f-ms12">${workingGroupsCount === 1 ? ' group' : ' groups'} working,</span>
-         <span class="f-cg3 finished-count">${finishedGroupsCount}</span>
-         <span class="f-cw2 f-ms12">${finishedGroupsCount === 1 ? ' group' : ' groups'} finished</span><br>
+          <span class="f-cg3 working-count">${workingGroupsCount}</span>
+          <span class="f-cw2 f-ms12">${workingGroupsCount === 1 ? ' group' : ' groups'} working</span>
         </div>
+          <span class="f-cg3 finished-count">${finishedGroupsCount}</span>
+          <span class="f-cw2 f-ms12">${finishedGroupsCount === 1 ? ' group' : ' groups'} finished</span><br>
+        <div>
         <div style="text-align:end";>
           <a href="${projectPath}" class="project-repo-link" target="_blank">
             PROJECT <i class="fa-solid fa-angle-right"></i>
