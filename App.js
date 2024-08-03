@@ -290,10 +290,6 @@ function displayOnProgressInfo(user, progress) {
         // Add event listeners conditionally
         setupGroupDetailsClickListener(workingCountElem, workingGroupsCount, workingGroups, currentProject);
         setupGroupDetailsClickListener(finishedCountElem, finishedGroupsCount, finishedGroups,currentProject);
-        
-        
-     
-        
 
     });
   }
@@ -313,15 +309,13 @@ function setupGroupDetailsClickListener(element, count, groups, projectName) {
  // Function to show the overlay with group details
  function showGroupDetails(projectName, groups) {
   
-  console.log("show group detail called!!!!!!!!")
-    
   // Check if groups is defined and is an array, and not 0
   if (!Array.isArray(groups) || groups.length === 0) {
    console.warn('No groups available or invalid groups data');
    return;
  }
  
- // Debugging: Log the groups data
+ // Debug print
  console.log("projectName:", projectName);
  console.log("groups data passed:", groups);
  
@@ -385,6 +379,7 @@ document.querySelector('.link-more').addEventListener('click', (event) => {
 });
 
 function showXPDetailOverlay() {
+  const dashboardContainer = document.getElementById('dashboardContainer');
   const xpDetailOverlay = document.getElementById('xpDetailOverlay');
   const allProjectList = document.getElementById('allProjectList');
   const baseUrl = 'https://learn.01founders.co/intra';
@@ -459,11 +454,13 @@ function showXPDetailOverlay() {
     });
 
   // Show the overlay
+  dashboardContainer.style.display = 'none';
   xpDetailOverlay.style.display = 'flex';
 }
 
 function closeXPOverlay() {
   document.getElementById('xpDetailOverlay').style.display = 'none';
+  document.getElementById('dashboardContainer').style.display = 'grid';
 }
 
 function displayAuditInfo(transactions){

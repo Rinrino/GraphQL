@@ -93,7 +93,8 @@ body {
 
 /* Containers */
 .login-container,
-.container {
+.container,
+.xpBoardContainer {
   background: var(--black-0);
   border: 1px solid var(--black-2);
   border-radius: var(--radius-md);
@@ -320,7 +321,7 @@ button:hover {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
@@ -411,7 +412,7 @@ button:hover {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5); /* Black background with transparency */
   border-radius:var(--radius-mm);
-  z-index: 1000; 
+  z-index: 1500; 
 }
 
 .overlay-content {
@@ -424,6 +425,7 @@ button:hover {
   overflow-y: auto; 
   overflow-x: hidden;
 }
+
 .overlay-content p, 
 .overlay-content li,
 .xp-overlay-content p,
