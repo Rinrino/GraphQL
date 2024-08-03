@@ -423,11 +423,14 @@ function showXPDetailOverlay() {
       
       projectItem.innerHTML = `
         <div class="project-name">${projectName} - ${formatNumber(project.amount)}</div>
-        <div class="finished-date">Finished date: ${formattedDate} at ${formattedTime}</div>
-         <div>
+        <div class="finished-date">
+          Finished date: <span class="break-on-small"> <br> </span>${formattedDate} at ${formattedTime}
+        </div>
+        <div class="group-count">
           <span class="f-cg3 working-count">${workingGroupsCount}</span>
           <span class="f-cw2 f-ms12">${workingGroupsCount === 1 ? ' group' : ' groups'} working</span>
         </div>
+        <div class="group-count">
           <span class="f-cg3 finished-count">${finishedGroupsCount}</span>
           <span class="f-cw2 f-ms12">${finishedGroupsCount === 1 ? ' group' : ' groups'} finished</span><br>
         <div>

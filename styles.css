@@ -310,6 +310,11 @@ button:hover {
   color: var(--white-4);
 }
 
+/* By default, hide the <br> element */
+.break-on-small {
+  display: none;
+}
+
 .xp-overlay {
   position: fixed;
   top: 0;
@@ -1091,8 +1096,19 @@ font-size: 4vw;
     grid-area: xpInfo;
     height: fit-content;
   }
+  
+  .break-on-small {
+    display: inline;  /*add <br> */
+  }
+  
+  .project-name,
+  .finished-date,
+  .group-count{
+    font-size: 1.2rem;
+  }
+    
   #project-list {
-    font-size: 1rem;
+    font-size: 1.1rem;
   }
   .f-md2{
     font-size: 4vw;
