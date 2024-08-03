@@ -1,5 +1,5 @@
 // data for resizing 
-let lineChartData, transactions,selectedData  ,upLineData,downLineData,skillsRadarData;
+let lineChartData,transactions,selectedData,upLineData,downLineData,skillsRadarData,loggedUser;
 
 document.addEventListener('DOMContentLoaded', function () {
   const jwtToken = localStorage.getItem('jwt');
@@ -84,6 +84,14 @@ function graphqlQuery(token) {
         id
         name
         type
+         groups{
+          id
+          status
+          captainLogin
+          members{
+            userLogin
+          }
+        }
       }
     }
   }
@@ -128,11 +136,11 @@ function graphqlQuery(token) {
     displayOnProgressInfo(result.data.user,result.data.progress)
     // debug print
     // displayOnProgressInfo(userTest,progress)
-    displayXPInfo(result.data.transaction)
-    displayAuditInfo(result.data.transaction)
-    displaySkillInfo(result.data.transaction)
-    displayXPLineChart(result.data.transaction)
-    displayXPBarChart(result.data.transaction)
+    displayXPInfo(transactions)
+    displayAuditInfo(transactions)
+    displaySkillInfo(transactions)
+    displayXPLineChart(transactions)
+    displayXPBarChart(transactions)
     
   })
   .catch(error => {
@@ -144,6 +152,7 @@ function graphqlQuery(token) {
 
 function displayUserInfo(data) {
   const user = data[0]
+  loggedUser = user.login;
 
   //document.getElementById('firstName').textContent = user.attrs.firstName;
   document.getElementById('userLoginName').textContent = user.login;
@@ -275,60 +284,78 @@ function displayOnProgressInfo(user, progress) {
         // Append the project item to the list
         projectsContainer.appendChild(projectItem);
         
-        // Add event listeners
-        projectItem.querySelector('.working-count').addEventListener('click', () =>  showGroupDetails(currentProject, workingGroups));
-        projectItem.querySelector('.finished-count').addEventListener('click', () =>  showGroupDetails(currentProject, finishedGroups));
-        projectItem.querySelector('.finished-count').addEventListener('click', () =>  showGroupDetails(currentProject, finishedGroups));
+        const workingCountElem = projectItem.querySelector('.working-count');
+        const finishedCountElem = projectItem.querySelector('.finished-count');
+        
+        // Add event listeners conditionally
+        setupGroupDetailsClickListener(workingCountElem, workingGroupsCount, workingGroups, currentProject);
+        setupGroupDetailsClickListener(finishedCountElem, finishedGroupsCount, finishedGroups,currentProject);
+        
+        
+     
+        
 
     });
   }
-  
-   // Function to show the overlay with group details
-   function showGroupDetails(projectName, groups) {
-    
-     // Check if groups is defined and is an array, and not 0
-     if (!Array.isArray(groups) || groups.length === 0) {
-      console.warn('No groups available or invalid groups data');
-      return;
-    }
-    
-    // Debugging: Log the groups data
-    console.log("projectName:", projectName);
-    console.log("groups data passed:", groups);
-    
-    const dataType = groups[0].status;
-    
-   
-    // Get the overlay and content elements
-    const overlay = document.getElementById('groupDetailsOverlay');
-    const content = document.getElementById('groupDetailsContent');
-
-    // Set the project name
-    let contentHTML = `<h2>${projectName}</h2>`;
-    
-    // Add the group status line
-    contentHTML += `<p class="f-cw2">All <span class="f-cpp">${groups.length}</span> ${dataType} ${groups.length === 1 ? ' group' : ' groups'}</p>`;
-  
-
-    // List each group's captain username
-    contentHTML += '<ul>';
-    groups.forEach(group => {
-      contentHTML += `<li class="f-cw2">Captain: <span class="f-cg2"> ${group.captainLogin}</span></li>`;
-    });
-    contentHTML += '</ul>';
-
-    // Set the inner HTML of the content container
-    content.innerHTML = contentHTML;
-
-    // Show the overlay
-    overlay.style.display = 'block';
-  }
-  
 }
 
-  function closeOverlay() {
-    document.getElementById('groupDetailsOverlay').style.display = 'none';
+function setupGroupDetailsClickListener(element, count, groups, projectName) {
+  if (count > 0) {
+    element.addEventListener('click', () => showGroupDetails(projectName, groups));
+  } else {
+    element.classList.add('disabled'); 
+    element.removeEventListener('click', () => showGroupDetails(projectName, groups)); 
   }
+}
+
+
+
+ // Function to show the overlay with group details
+ function showGroupDetails(projectName, groups) {
+  
+  console.log("show group detail called!!!!!!!!")
+    
+  // Check if groups is defined and is an array, and not 0
+  if (!Array.isArray(groups) || groups.length === 0) {
+   console.warn('No groups available or invalid groups data');
+   return;
+ }
+ 
+ // Debugging: Log the groups data
+ console.log("projectName:", projectName);
+ console.log("groups data passed:", groups);
+ 
+ const dataType = groups[0].status;
+ 
+
+ // Get the overlay and content elements
+ const overlay = document.getElementById('groupDetailsOverlay');
+ const content = document.getElementById('groupDetailsContent');
+
+ // Set the project name
+ let contentHTML = `<h2 class="f-ms14">${projectName}</h2>`;
+ 
+ // Add the group status line
+ contentHTML += `<p class="f-cw2">All <span class="f-cpp">${groups.length}</span> ${dataType} ${groups.length === 1 ? ' group' : ' groups'}</p>`;
+
+
+ // List each group's captain username
+ contentHTML += '<ul>';
+ groups.forEach(group => {
+   contentHTML += `<li class="f-cw2">Captain: <span class="f-cb"> ${group.captainLogin}</span></li>`;
+ });
+ contentHTML += '</ul>';
+
+ // Set the inner HTML of the content container
+ content.innerHTML = contentHTML;
+
+ // Show the overlay
+ overlay.style.display = 'block';
+}
+
+function closeOverlay() {
+  document.getElementById('groupDetailsOverlay').style.display = 'none';
+}
 
 
 function displayXPInfo(transactions){
@@ -350,6 +377,89 @@ function displayXPInfo(transactions){
       projectItem.textContent =`${project.object.name} - ${formatNumber(project.amount)}`;
       projectsList.appendChild(projectItem);
   });
+}
+
+document.querySelector('.link-more').addEventListener('click', (event) => {
+  event.preventDefault(); // Prevent default link behavior
+  showXPDetailOverlay();
+});
+
+function showXPDetailOverlay() {
+  const xpDetailOverlay = document.getElementById('xpDetailOverlay');
+  const allProjectList = document.getElementById('allProjectList');
+  const baseUrl = 'https://learn.01founders.co/intra';
+  const repoBaseUrl ='https://learn.01founders.co/git'
+  
+
+  
+  // Clear existing list
+  allProjectList.innerHTML = '';
+  
+  // Filter and display all projects with type 'xp'
+  transactions
+    .filter((transaction) => transaction.type === 'xp')
+    
+    .forEach((project) => {
+      const projectName = project.object.name;
+      
+      // get the groups
+      const workingGroups = project.object.groups.filter(group => group.status === 'working');
+      const finishedGroups = project.object.groups.filter(group => group.status === "finished");
+
+      const workingGroupsCount = workingGroups.length;
+      const finishedGroupsCount = finishedGroups.length;
+  
+      const projectItem = document.createElement('li');
+      
+      projectItem.className='bb-01 project-list';
+      const finishedDate = new Date(project.createdAt);
+      const formattedDate = formattedDateStringFrom(finishedDate);
+      const formattedTime = formattedTimeStringFrom(finishedDate);
+     
+      const projectPath = `${baseUrl}${encodeURI(project.path)}`;
+      const repoPath = `${repoBaseUrl}/${encodeURI(loggedUser)}/${encodeURI(project.object.name)}`;
+      
+      
+      
+      projectItem.innerHTML = `
+        <div class="project-name">${projectName} - ${formatNumber(project.amount)}</div>
+        <div class="finished-date">Finished date: ${formattedDate} at ${formattedTime}</div>
+         <div>
+         <span class="f-cg3 working-count">${workingGroupsCount}</span>
+         <span class="f-cw2 f-ms12">${workingGroupsCount === 1 ? ' group' : ' groups'} working,</span>
+         <span class="f-cg3 finished-count">${finishedGroupsCount}</span>
+         <span class="f-cw2 f-ms12">${finishedGroupsCount === 1 ? ' group' : ' groups'} finished</span><br>
+        </div>
+        <div style="text-align:end";>
+          <a href="${projectPath}" class="project-repo-link" target="_blank">
+            PROJECT <i class="fa-solid fa-angle-right"></i>
+          </a>
+          <a href="${repoPath}" class="project-repo-link" target="_blank">
+            REPOSITORY <i class="fa-solid fa-angle-right"></i>
+          </a>
+        </div>
+        <div>
+          
+        </div>
+       
+      `;
+      
+      allProjectList.appendChild(projectItem);
+      
+      const workingCountElem = projectItem.querySelector('.working-count');
+      const finishedCountElem = projectItem.querySelector('.finished-count');
+      
+       // Add event listeners
+        setupGroupDetailsClickListener(workingCountElem, workingGroupsCount, workingGroups, projectName);
+        setupGroupDetailsClickListener(finishedCountElem, finishedGroupsCount, finishedGroups,projectName); 
+    });
+
+  // Show the overlay
+  xpDetailOverlay.style.display = 'flex';
+}
+
+function closeXPOverlay() {
+  document.getElementById('xpDetailOverlay').style.display = 'none';
 }
 
 function displayAuditInfo(transactions){
@@ -1085,6 +1195,20 @@ function formattedDateStringFrom(dateString) {
   
   var formattedDate = date.toLocaleDateString('en-GB', options);
   return formattedDate
+}
+
+function formattedTimeStringFrom(dateString) {
+  var date = new Date(dateString);
+
+  // Define options for the date formatting
+  const options = { 
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true 
+  };
+  
+  var formattedTime = date.toLocaleTimeString('en-GB', options);
+  return formattedTime
 }
 
 // Custom date formatting function for x-axis labels

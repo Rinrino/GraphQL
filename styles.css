@@ -34,9 +34,10 @@
   --green-1: rgb(17 144 163);
   --green-2: rgb(14 109 124);
   --green-3: #09de50;
+  --green-4: #199843;
   
   /* blue */
-  --blue-0: #1660aa;
+  --blue-0: #2979c8;
   --blue-1: rgb(17, 24, 163);
   --blue-2: rgb(11, 7, 81);   
     
@@ -83,7 +84,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'IBM Plex Sans',Arial, sans-serif;
+  font-family: Arial, sans-serif;
   background-color: var(--grey-0);
   color:var(--white-1);
   height: 100vh;
@@ -270,10 +271,105 @@ button:hover {
   width: 100%;
 }
 .xp-info{
+  position: relative;
   grid-area: xpInfo;
   line-height: 1.5;
   margin: 10px 10px 10px 20px;
 }
+
+.link-more {
+  position: absolute;
+  text-decoration: none;
+  top: 10px;
+  right: 20px;
+  font-size: 1.4rem;
+  color: var(--white-2);
+  cursor: pointer;
+  transition: all 0.2s;
+
+  
+}
+.link-more:hover{
+  color: var(--white-4);
+  padding-bottom: 1px;
+  border-bottom: 1px solid var(--white-4);
+}
+
+.more-icon{
+  font-size: 1.4rem;
+  color: var(--white-2);
+}
+
+.link-more:hover .more-icon {  
+  color: var(--white-4); /*icon also need to change color */
+  transform: translateX(3px); /* let the icon move to right a bit*/
+}
+
+.more-icon:hover{
+  font-size: 1.4rem;
+  color: var(--white-4);
+}
+
+.xp-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.xp-overlay-content {
+  position: relative;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  width: 80%;
+  max-height: 80%;
+  overflow-y: auto;
+}
+
+/* Style for the list items in the overlay */
+#allProjectList li {
+  margin-bottom: 10px; /* Adjust this value to control the space between items */
+  padding: 5px; /* Optional: Add padding for better visual spacing */
+}
+
+.project-name {
+  font-weight: bold; /* Make project name bold */
+  margin-bottom: 5px; 
+}
+
+
+.finished-date {
+  font-size: 1.4rem;
+  color: var(--white-2)
+}
+
+.project-repo-link {
+  font-size: 1.2rem;
+  color: var(--purple-pink); /* Adjust as needed */
+  text-decoration: none;
+  transition: all 0.3s;
+}
+
+.project-repo-link:hover {
+  color: var(--purple-dark); 
+  text-decoration: underline;
+}
+
+.project-repo-link:hover .fa-angle-right {
+  transform: translateX(3px); /* let the icon move to right a bit*/
+}
+
+.fa-angle-right {
+  margin-left: 5px;
+}
+
 .audit-info{
   grid-area: auditInfo;
   font-size: 1.6rem;
@@ -291,11 +387,14 @@ button:hover {
 .working-count,
 .finished-count {
   text-decoration: underline;
+  color:var(--green-3);
+  transition: all 0.3s;
 }
 
 .working-count:hover,
 .finished-count:hover {
   cursor: pointer;
+  color:var(--green-4);
 }
 
 .overlay {
@@ -308,15 +407,31 @@ button:hover {
   background-color: rgba(0, 0, 0, 0.5); /* Black background with transparency */
   border-radius:var(--radius-mm);
   z-index: 1000; 
-  overflow: auto; 
 }
 
 .overlay-content {
   position: relative;
   margin: auto;
   padding: 20px;
-  width: 80%;
+  max-width: 90vw; 
+  max-height: 90vh; 
   max-width: 500px;
+  overflow-y: auto; 
+  overflow-x: hidden;
+}
+.overlay-content p, 
+.overlay-content li,
+.xp-overlay-content p,
+.xp-overlay-content li{
+  line-height: 1.6; 
+}
+
+/* Style for the disabled state of the overlay */
+.disabled {
+  color:var(--white-0);
+  pointer-events: none; /* Disable all mouse events */
+  cursor: not-allowed; /* Show a not-allowed cursor */
+  text-decoration: none;
 }
 
 .close-btn {

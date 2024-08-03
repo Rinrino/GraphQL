@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link crossorigin="anonymous" rel="preload" as="font" href="/assets/fonts/IBMPlexSans-light-latin.woff2">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
   <link rel="icon" href="graphql.png">
   <link rel="stylesheet" href="styles.css"> 
   <title>01 GraphQL</title>
@@ -63,9 +63,21 @@
         <div class="dashboard-section dashboard-top" id="topSection">
           <!-- XP Info-->
           <div id="xp-info" class="grid card xp-info">
+            <a href="#" class="link-more"> See More  <i class="fa-solid fa-angle-right more-icon"></i> </a>
             <h2><span id="totalXp" class="f-md"> </span></h2>
             <h2 class="bb-01">Last activity</h2>
             <div class="f-ms12"><span id="project-list"></span></div>
+          </div>
+          
+          <!-- XP board -->
+          <div id="xpDetailOverlay" class="xp-overlay" style="display:none;">
+            <div class="xp-overlay-content card">
+              <span class="close-btn" onclick="closeXPOverlay()">&times;</span>
+              <div id="xpDetailContent">
+                <h2>XP Board</h2>
+                <ul id="allProjectList"></ul>
+              </div>
+            </div>
           </div>
           
           <!-- audit ratio Info-->
