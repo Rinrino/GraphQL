@@ -143,7 +143,14 @@
               <h1 class="f-md2">Current Level: <span class="f-md" id="level"></span></h1>
             </div>
             <svg id="radarChart" width="100%"></svg>
-            <h1 class="f-md2">Skills</h1>
+            <h1 class="f-md2" id="skillTypeTitle">Skills</h1>
+            <div class="selection-label">
+              <label class="f-ms14">skill type:</label>
+              <select class="graph-display-name" id="skillTypeSelected" data-default="Technical_skills">
+                <option value="Technical_skills">Technical skills</option>
+                <option value="Technologies">Technologies</option>
+              </select>
+            </div>
           </div>
         </div> <!--end of top section-->
           
@@ -161,7 +168,7 @@
             <div class="chart-header">
               <h1 class="f-ms18">XP Earned By Project</h1>
               <div class="selection-label">
-                <label class="f-ms14">Language</label>
+                <label class="f-ms14">Language:</label>
                 <select class="graph-display-name" id="languageSelected" data-default="Go">
                   <option value="Go">Golang</option>
                   <option value="Js">JavaScript</option>

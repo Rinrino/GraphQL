@@ -614,8 +614,9 @@ button:hover {
 
 .graph-display-name{
   border-radius: var(--radius-mm);
-  background: var(--white-1);
-  width: 45%;
+  background: var(--white-3);
+  color: var(--grey-0);
+  width: fit-content;
   height: fit-content;
   justify-self: end;
   font-size: 1.4rem;

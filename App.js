@@ -1,5 +1,5 @@
 // data for resizing 
-let lineChartData,transactions,selectedData,upLineData,downLineData,skillsRadarData,loggedUser;
+let lineChartData,transactions,projectTransactionsData,selectedData,upLineData,downLineData,skillsRadarData,loggedUser;
 
 document.addEventListener('DOMContentLoaded', function () {
   const jwtToken = localStorage.getItem('jwt') || sessionStorage.getItem('jwt');
@@ -66,12 +66,7 @@ function graphqlQuery(token) {
         }
       }
         
-    transaction(
-      where: {
-        object: {type: { _eq: "project" }}
-      }
-      order_by: {createdAt: desc}
-    ) {
+    transaction(order_by: {createdAt: desc}) {
       amount
       path
       event {
@@ -131,15 +126,21 @@ function graphqlQuery(token) {
     
     transactions = result.data.transaction;
     
+   // Extract the transactions and filter them to only include "project" types
+   projectTransactionsData = result.data.transaction
+     .filter(transaction => transaction.object.type === 'project');
+   // debug print
+   // console.log("Project Transactions:", projectTransactionsData);
+    
     displayUserInfo(result.data.user);
-    displayOnProgressInfo(result.data.user,result.data.progress)
+    displayOnProgressInfo(result.data.user,result.data.progress);
     // debug print
     // displayOnProgressInfo(userTest,progress)
-    displayXPInfo(transactions)
-    displayAuditInfo(transactions)
-    displaySkillInfo(transactions)
-    displayXPLineChart(transactions)
-    displayXPBarChart(transactions)
+    displayXPInfo(projectTransactionsData);
+    displayAuditInfo(projectTransactionsData);
+    displaySkillInfo(projectTransactionsData,transactions);
+    displayXPLineChart(projectTransactionsData);
+    displayXPBarChart(projectTransactionsData);
     
   })
   .catch(error => {
@@ -176,7 +177,7 @@ function displayOnProgressInfo(user, progress) {
       )
   );
   // debug print
-   console.log("All working projects", allCurrentWorkingProjects);
+  // console.log("All working projects", allCurrentWorkingProjects);
 
   // Clear existing project info in the DOM
   const projectsContainer = document.getElementById('workingProjectsList');
@@ -213,9 +214,11 @@ function displayOnProgressInfo(user, progress) {
         
         // Filter groups
         const workingGroups = prog.object.groups.filter(group => group.status === "working");
-        console.log("all working group:",workingGroups);
+        // debug print
+        // console.log("all working group:",workingGroups);
         const finishedGroups = prog.object.groups.filter(group => group.status === "finished");
-        console.log("all finished group:",finishedGroups);
+        // debug print
+        // console.log("all finished group:",finishedGroups);
 
         const workingGroupsCount = workingGroups.length;
         const finishedGroupsCount = finishedGroups.length;
@@ -315,8 +318,8 @@ function setupGroupDetailsClickListener(element, count, groups, projectName) {
  }
  
  // Debug print
- console.log("projectName:", projectName);
- console.log("groups data passed:", groups);
+ // console.log("projectName:", projectName);
+ // console.log("groups data passed:", groups);
  
  const dataType = groups[0].status;
  
@@ -813,7 +816,7 @@ function filterDataByLanguage(data, language) {
 
 function displayXPBarChart(transactions){
   // debug print
-  // console.log("all transaction data:",transactions)
+  // console.log("all bar chart data:",transactions)
   
   barChartData = transactions
   .filter((transaction) => transaction.type === 'xp')
@@ -827,14 +830,18 @@ function displayXPBarChart(transactions){
    // debug print
    // console.log("selected Language:",selectedLanguage);
    
+   //console.log("Bar Chart Data before filtering:", barChartData); // Debug statement
    // Filter data based on the selected language
     selectedData = filterDataByLanguage(barChartData, selectedLanguage);
+    
+    // debug print
+   //console.log("Selected Data after filtering:", selectedData);
  
    generateXPBarChart(selectedData,selectedLanguage);
 }
 
 function generateXPBarChart(selectedData,selectedLanguage ) {
-  console.log("selected data for bar chart:",selectedData );
+  console.log("Data passed to generateXPBarChart:", selectedData);
   // Clear existing SVG content
   d3.select("#barChart").selectAll("*").remove();
   // Clear any existing no-data message
@@ -942,13 +949,63 @@ function generateXPBarChart(selectedData,selectedLanguage ) {
 // Event listener for language selection change
 document.getElementById('languageSelected').addEventListener('change', () => {
   // Re-display the bar chart with the newly selected language
-  displayXPBarChart(transactions); // Ensure `transactions` data is available in the scope
+  displayXPBarChart(projectTransactionsData); // Ensure `transactions` data is available in the scope
 });
 
-function displaySkillInfo(transactions) {
+
+// Function to filter data based on the selected type of skills
+function filterDataBySkills(skillsRadarData, skill) {
+
+  // debug print
+  // console.log("skillsRadarDat", skillsRadarData);
+
+  const technical_skills = [
+    /* for example skill_prog */
+    "prog",  
+    "back-end",
+    "front-end",
+    "algo",
+    "game",
+    "sys-admin",
+    "stats",
+    /* assume other skills' name should like this*/
+    "ai",
+    "blockchain",
+    "mobile-dev",
+    "tcp-ip",
+    "cybersecurity",
+  ];
+  
+  // Initialize an empty object for the filtered data
+  let filteredData = {};
+
+  // Filter based on the selected skill type
+  if (skill === 'Technical_skills') {
+    filteredData = Object.keys(skillsRadarData)
+      .filter(key => technical_skills.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = skillsRadarData[key];
+        return obj;
+      }, {});
+  } else if (skill === 'Technologies') {
+    filteredData = Object.keys(skillsRadarData)
+      .filter(key => !technical_skills.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = skillsRadarData[key];
+        return obj;
+      }, {});
+  } else {
+    // If no specific skill type is selected, return all skills
+    filteredData = skillsRadarData;
+  }
+
+  return filteredData;
+}
+
+function displaySkillInfo(projectTransactionsData,transactions) {
   
   // get current level
-  const levelData =  transactions
+  const levelData = projectTransactionsData
   .filter((transaction) => transaction.type === 'level')
   .map((transaction) => ({
     project: transaction.object.name,
@@ -978,11 +1035,18 @@ function displaySkillInfo(transactions) {
        xpData[transaction.object.name] = transaction.amount;
      });
   
-  // Filter the transactions to exclude the specified types
-  const filteredSkillsTransactions = transactions.filter(transaction => !excludeTypes.includes(transaction.type));
+   // Dynamically derive the skills from the transactions
+   const skills = [...new Set(transactions
+    .map(transaction => transaction.type)
+    .filter(type => !excludeTypes.includes(type))
+  )];
+
+  // Debug print
+  // console.log('all skills:', skills);
   
-  const skills =["skill_go","skill_js","skill_html","skill_css","skill_sql","skill_docker","skill_c","skill_back-end","skill_front-end","skill_sys-admin","skill_algo","skill_stats","skill_game"]
- 
+    // Filter the transactions to exclude the specified types
+  const filteredSkillsTransactions = transactions.filter(transaction => !excludeTypes.includes(transaction.type));
+   
   // debug print
   // console.log('all filtered skills transactions====>',filteredSkillsTransactions);
   
@@ -992,7 +1056,7 @@ function displaySkillInfo(transactions) {
   filteredSkillsTransactions.forEach(transaction => {
     if (skills.includes(transaction.type)) {
       const projectName = transaction.object.name;
-      const skillType = shorten(transaction.type);
+      const skillType = shorten(transaction.type); 
       const amount = transaction.amount;
       
       // Initialize project entry if it doesn't exist
@@ -1033,21 +1097,82 @@ function displaySkillInfo(transactions) {
   // console.log("highest amount by skill =======>", highestAmountBySkill);
   skillsRadarData = highestAmountBySkill;
   
+    // debug print
+  // console.log("skillsRadarData:",skillsRadarData);
+  
   // display result
   document.getElementById('level').textContent = currentLevel;
-  generateSkillsRadarChart(skillsRadarData)
+  
+  // Get the selected type of skill from the dropdown
+  const selectedTypeOfSkills = document.getElementById('skillTypeSelected').value;
+  // debug print
+  //console.log("selected skill type:",selectedTypeOfSkills);
+  
+  // Update the <h1> element to reflect the selected skill type
+  const skillTypeTitle = document.getElementById('skillTypeTitle');
+  // Determine what text to display
+  let titleText = "";
+  if (selectedTypeOfSkills === 'Technical_skills') {
+    titleText = "Technical skills";
+  } else if (selectedTypeOfSkills === 'Technologies') {
+    titleText = "Technologies";
+  } else {
+    titleText = "Skills";
+  }
+  skillTypeTitle.textContent = titleText;
+  
+  // Filter data based on the selected language
+  selectedData = filterDataBySkills(skillsRadarData, selectedTypeOfSkills);
+  
+  // debug print
+  // console.log("selected data:", selectedData);
+      
+  generateSkillsRadarChart(selectedData,selectedTypeOfSkills)
 }
+
+// Event listener for skill type selection change
+document.getElementById('skillTypeSelected').addEventListener('change', () => {
+  // Re-display the radar chart with the newly selected skill type
+  displaySkillInfo(projectTransactionsData,transactions);
+});
    
-function generateSkillsRadarChart(skillsRadarData) {
+function generateSkillsRadarChart(skillsRadarData,selectedTypeOfSkills) {
+  // debug print
+  // console.log("skill data:",skillsRadarData)
+  // console.log("selected skill:",selectedTypeOfSkills)
+  
+   // Set up scales with dynamic dimensions based on parent div
+   const parentDiv = document.getElementById('radarChartContainer');
+   const width = parentDiv.clientWidth;
+   const height = width;
+   const margin = 100;
+   const radius = Math.min(width, height) / 2 - margin;
+  
+  
   // Clear existing SVG content
   d3.select("#radarChart").selectAll("*").remove();
+  const noDataMessage = parentDiv.querySelector('.no-data-message');
+  if (noDataMessage) {
+    noDataMessage.remove();
+  }
+  
+   const radarChartSvg = document.getElementById('radarChart');
+    // Show the SVG if there is data
+    radarChartSvg.style.display = 'block';
 
-  // Set up scales with dynamic dimensions based on parent div
-  const parentDiv = document.getElementById('radarChartContainer');
-  const width = parentDiv.clientWidth;
-  const height = width;
-  const margin = 100;
-  const radius = Math.min(width, height) / 2 - margin;
+   // Display a message if there are no projects for the selected language
+   if (skillsRadarData.length === 0) {
+    // Hide the SVG
+    radarChartSvg.style.display = 'none';
+    const noDataMessage = document.createElement('div');
+    noDataMessage.style.marginBottom = '20px'; 
+    noDataMessage.className = 'no-data-message';
+    noDataMessage.innerHTML = `
+      <p>No sils available for the selected type: ${selectedLanguage}</p>
+    `;
+    barChartContainer.appendChild(noDataMessage);
+    return; // Exit the function as there's no data to display
+  }
 
   const svg = d3.select("#radarChart")
     .attr("viewBox", `0 0 ${width} ${height}`)
