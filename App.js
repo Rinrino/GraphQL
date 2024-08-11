@@ -2,10 +2,10 @@
 let lineChartData,transactions,selectedData,upLineData,downLineData,skillsRadarData,loggedUser;
 
 document.addEventListener('DOMContentLoaded', function () {
-  const jwtToken = localStorage.getItem('jwt');
+  const jwtToken = localStorage.getItem('jwt') || sessionStorage.getItem('jwt');
   
   if(jwtToken){
-    graphqlQuery(jwtToken)
+    graphqlQuery(jwtToken);
     displayDashboard();
   }else{
     // Show login form
@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('resize', handleResize);
   
 });
-
 
 function displayDashboard() {
     // Show dashboard and hide login form
@@ -1269,7 +1268,6 @@ function login(){
     }
     return response.json();
   })
-  
   .then(token => {
     if (!token) {
       throw new Error('Token not found in the response');
@@ -1285,7 +1283,7 @@ function login(){
     }
     
      // fetch data
-    graphqlQuery(localStorage.getItem('jwt') || sessionStorage.getItem('jwt'));
+    graphqlQuery(token);
     // Show logout button and hide login form
     displayDashboard();
 
