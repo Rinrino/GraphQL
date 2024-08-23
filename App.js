@@ -377,10 +377,10 @@ function displayXPInfo(transactions){
 
 document.querySelector('.link-more').addEventListener('click', (event) => {
   event.preventDefault(); // Prevent default link behavior
-  showXPDetailOverlay();
+  showXPDetailOverlay(projectTransactionsData);
 });
 
-function showXPDetailOverlay() {
+function showXPDetailOverlay(transactions) {
   const dashboardContainer = document.getElementById('dashboardContainer');
   const xpDetailOverlay = document.getElementById('xpDetailOverlay');
   const allProjectList = document.getElementById('allProjectList');
@@ -1048,7 +1048,7 @@ function displaySkillInfo(projectTransactionsData,transactions) {
   const filteredSkillsTransactions = transactions.filter(transaction => !excludeTypes.includes(transaction.type));
    
   // debug print
-  // console.log('all filtered skills transactions====>',filteredSkillsTransactions);
+   console.log('all filtered skills transactions====>',filteredSkillsTransactions);
   
   // Create a map to store project skill information
   const projectSkills = {};
