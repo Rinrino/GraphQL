@@ -150,7 +150,7 @@ Here is another example of a query using the table `user`:
 
 In GraphQL, the usage of arguments are specified in the schema. You can see the available query parameters by introspecting the API.
 
-> If you're logged in to the platform, you may access [GraphiQL](<https://((DOMAIN))/graphiql/>) to more easily explore the schema.
+> If you're logged in to the platform, you may access [GraphiQL](https://learn.01founders.co//graphiql/) to more easily explore the schema.
 
 Example of nesting using the `result` and `user` table:
 
@@ -217,3 +217,11 @@ Format: `<type>(<scope>): <subject>`
 `chore`: (updating grunt tasks etc; no production code change)
 
 `maint`: (updating current issue you're working on)
+
+## Access the application in your browser
+
+- https://rinrino.github.io/GraphQL/
+
+## Authors
+
+- GitHub: [rinrino](https://github.com/Rinrino)
