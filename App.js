@@ -999,12 +999,12 @@ function filterDataBySkills(skillsRadarData, skill) {
     "game",
     "sys-admin",
     "stats",
-    /* assume other skills' name should like this*/
     "ai",
-    "blockchain",
-    "mobile-dev",
     "tcp",
     "cybersecurity",
+    /* assume other skills' name should like this*/
+    "mobile-dev",
+    "blockchain",
   ];
   
   // Initialize an empty object for the filtered data
