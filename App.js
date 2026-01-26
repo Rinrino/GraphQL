@@ -759,7 +759,7 @@ function generateLineChart(lineChartData ) {
 }
 
 // Function to filter data based on the selected language
-function filterDataByLanguage(data, language) {
+function filterDataByCategory(data,category) {
   const jsProjectsName = [
     "make-your-game",
     "make-your-game-score-handling",
@@ -782,9 +782,22 @@ function filterDataByLanguage(data, language) {
     "0-SHELL-job-control",
     "0-SHELL-scripting",
   ];
+  const cyberProjectsName = [
+    "passive",
+    "inspector-image",
+    "active",
+    "local",
+    "web-hack",
+    "injector",
+    "hole-in-bin",
+    "mal-track",
+    "evasion",
+    "obfuscator",
+    "malware",
+  ];
   
   /* debug */
-/*   const jsProjects = barChartData
+ /*  const jsProjects = barChartData
   .filter(data => jsProjectsName.includes(data.project))
   .map((data) => ({
     project: data.project,
@@ -802,16 +815,33 @@ function filterDataByLanguage(data, language) {
   console.log("all js projects:",jsProjects)
   console.log("all go projects:",goProjects) */
 
-  if (language === 'Js') {
-    return data.filter(item => jsProjectsName.includes(item.project));
-  } else if (language === 'Rust') {
-    return data.filter(item => rustProjectsName.includes(item.project));
-  } else if (language === 'Go') {
-    return data.filter(item =>
-      !jsProjectsName.includes(item.project) && !rustProjectsName.includes(item.project)
+ if (category === 'Js') {
+    return data.filter(item => item.path?.includes('div-01') && jsProjectsName.includes(item.project));
+  } 
+  
+  if (category === 'Rust') {
+    return data.filter(item => item.path?.includes('div-01') && rustProjectsName.includes(item.project));
+  } 
+
+  if (category === 'Cyber') {
+    return data.filter(item => item.path?.includes('div-01') && cyberProjectsName.includes(item.project));
+  }
+
+  if (category === 'AI') {
+    return data.filter(item => item.path?.includes('ai-starter'));
+  }
+
+  if (category === 'Go') {
+    // GO is the "Main" track: path is div-01 but NOT in the special lists
+    return data.filter(item => 
+      item.path?.includes('div-01') && 
+      !jsProjectsName.includes(item.project) && 
+      !rustProjectsName.includes(item.project) &&
+      !cyberProjectsName.includes(item.project)
     );
   }
-  return data; // In case of any other selection, return all data
+
+  return data;
 }
 
 function displayXPBarChart(transactions){
@@ -823,24 +853,25 @@ function displayXPBarChart(transactions){
   .map((transaction) => ({
     project: transaction.object.name,
     xp: transaction.amount,
+    path: transaction.path
   }));
   
    // Get the selected language from the dropdown
-   const selectedLanguage = document.getElementById('languageSelected').value;
+   const selectedCategory = document.getElementById('categorySelected').value;
    // debug print
    // console.log("selected Language:",selectedLanguage);
    
    //console.log("Bar Chart Data before filtering:", barChartData); // Debug statement
    // Filter data based on the selected language
-    selectedData = filterDataByLanguage(barChartData, selectedLanguage);
+    selectedData = filterDataByCategory(barChartData,  selectedCategory);
     
     // debug print
    //console.log("Selected Data after filtering:", selectedData);
  
-   generateXPBarChart(selectedData,selectedLanguage);
+   generateXPBarChart(selectedData,selectedCategory);
 }
 
-function generateXPBarChart(selectedData,selectedLanguage ) {
+function generateXPBarChart(selectedData,selectedCategory ) {
   console.log("Data passed to generateXPBarChart:", selectedData);
   // Clear existing SVG content
   d3.select("#barChart").selectAll("*").remove();
@@ -947,7 +978,7 @@ function generateXPBarChart(selectedData,selectedLanguage ) {
 }
 
 // Event listener for language selection change
-document.getElementById('languageSelected').addEventListener('change', () => {
+document.getElementById('categorySelected').addEventListener('change', () => {
   // Re-display the bar chart with the newly selected language
   displayXPBarChart(projectTransactionsData); // Ensure `transactions` data is available in the scope
 });
