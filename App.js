@@ -1003,7 +1003,7 @@ function filterDataBySkills(skillsRadarData, skill) {
     "ai",
     "blockchain",
     "mobile-dev",
-    "tcp-ip",
+    "tcp",
     "cybersecurity",
   ];
   
