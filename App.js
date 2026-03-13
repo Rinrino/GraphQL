@@ -111,11 +111,20 @@ function graphqlQuery(token) {
   })
   .then(response => {
     if (!response.ok) {
-      throw new Error('Failed to fetch GraphQL data');
+      throw new Error(`Network response was not ok: ${response.statusText}`);
     }
     return response.json();
   })
   .then(result => {
+    
+    // --- Strict GraphQL Error Checking ---
+    if (result.errors) {
+      // Log the full error array for debugging
+      console.error("GraphQL Errors:", result.errors);
+      // Throw the specific GraphQL message to trigger the catch block
+      const errorMessage = result.errors[0]?.message || "GraphQL query failed";
+      throw new Error(errorMessage);
+    }
     
     // debug print
     // console.log("GraphQL result:", result);
@@ -128,15 +137,15 @@ function graphqlQuery(token) {
     
   })
   .catch(error => {
-    console.warn('You are offline or the API is down. Loading cached data...');
+    console.warn('API error or offline. Loading cached data...', error.message);
     
-    // --- NEW: Fallback to LocalStorage ---
+    // --- Fallback to LocalStorage ---
     const cachedData = localStorage.getItem('cachedDashboardData');
     if (cachedData) {
       const data = JSON.parse(cachedData);
       processAndDisplayData(data);
     } else {
-      document.getElementById('error').textContent = "No internet and no cached data found.";
+      document.getElementById('error').textContent = error.message || "No internet and no cached data found.";
     }
   });
 }
