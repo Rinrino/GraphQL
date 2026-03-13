@@ -12,10 +12,23 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('loginContainer').style.display = 'block';
   }
   
-  // Attach event listener for window resize
-  window.addEventListener('resize', handleResize);
+  // Attach debounced event listener for window resize (waits 250ms after resizing stops)
+  window.addEventListener('resize', debounce(handleResize, 250));
   
 });
+
+// Utility function to limit how often a function can run
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
 function displayDashboard() {
     // Show dashboard and hide login form
