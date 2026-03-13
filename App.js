@@ -304,8 +304,6 @@ function setupGroupDetailsClickListener(element, count, groups, projectName) {
   }
 }
 
-
-
  // Function to show the overlay with group details
  function showGroupDetails(projectName, groups) {
   
@@ -326,25 +324,42 @@ function setupGroupDetailsClickListener(element, count, groups, projectName) {
  const overlay = document.getElementById('groupDetailsOverlay');
  const content = document.getElementById('groupDetailsContent');
 
- // Set the project name
- let contentHTML = `<h2 class="f-ms14">${projectName}</h2>`;
+ // 1. Clear existing content safely
+  content.innerHTML = '';
+
+  // 2. Create Header
+  const header = document.createElement('h2');
+  header.className = 'f-ms14';
+  header.textContent = projectName;
+  content.appendChild(header);
  
- // Add the group status line
- contentHTML += `<p class="f-cw2">All <span class="f-cpp">${groups.length}</span> ${dataType} ${groups.length === 1 ? ' group' : ' groups'}</p>`;
+  // 3. Create Status Line
+  // Safe to use innerHTML here because length and dataType are system-controlled integers/strings
+  const status = document.createElement('p');
+  status.className = 'f-cw2';
+  status.innerHTML = `All <span class="f-cpp">${groups.length}</span> ${dataType} ${groups.length === 1 ? ' group' : ' groups'}`;
+  content.appendChild(status);
 
+ // 4. Create List and safely inject user data
+  const ul = document.createElement('ul');
+  groups.forEach(group => {
+    const li = document.createElement('li');
+    li.className = 'f-cw2';
+    li.textContent = 'Captain: ';
 
- // List each group's captain username
- contentHTML += '<ul>';
- groups.forEach(group => {
-   contentHTML += `<li class="f-cw2">Captain: <span class="f-cb"> ${group.captainLogin}</span></li>`;
- });
- contentHTML += '</ul>';
+    const span = document.createElement('span');
+    span.className = 'f-cb';
+    // SAFE: textContent strictly prevents HTML execution
+    span.textContent = group.captainLogin; 
 
- // Set the inner HTML of the content container
- content.innerHTML = contentHTML;
+    li.appendChild(span);
+    ul.appendChild(li);
+  });
+  
+  content.appendChild(ul);
 
- // Show the overlay
- overlay.style.display = 'block';
+  // 5. Show the overlay
+  overlay.style.display = 'block';
 }
 
 function closeOverlay() {
