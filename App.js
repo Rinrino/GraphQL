@@ -1,5 +1,5 @@
 // data for resizing 
-let lineChartData,transactions,projectTransactionsData,selectedData,upLineData,downLineData,skillsRadarData,loggedUser;
+let lineChartData,transactions,projectTransactionsData,barChartSelectedData,radarChartSelectedData,upLineData,downLineData,skillsRadarData,loggedUser;
 
 document.addEventListener('DOMContentLoaded', function () {
   const jwtToken = localStorage.getItem('jwt') || sessionStorage.getItem('jwt');
@@ -26,10 +26,7 @@ function displayDashboard() {
   
 function graphqlQuery(token) {
   
-  // Replace 'YOUR_GRAPHQL_ENDPOINT' with your actual GraphQL endpoint
   const graphqlEndpoint = 'https://learn.01founders.co/api/graphql-engine/v1/graphql';
-
-    // Replace 'YOUR_GRAPHQL_QUERY' with your actual GraphQL query
   const graphqlQuery = `
   {
     user {
@@ -109,31 +106,41 @@ function graphqlQuery(token) {
     
     // debug print
     // console.log("GraphQL result:", result);
+
+    // --- Save the data for offline use ---
+    localStorage.setItem('cachedDashboardData', JSON.stringify(result.data));
   
-    /*test data*/
-  /*   const userTest = [{ login: "testUser" }];
-    const progress = [
-      { 
-        object: { 
-          name: "Project 1", 
-          groups: [
-            { status: "finished", members: [{ userLogin: "testUser" }] }
-          ] 
-        } 
-      }
-    ]; */
-    // Display all the user data
+    // Process the data
+    processAndDisplayData(result.data);
     
-    transactions = result.data.transaction;
+  })
+  .catch(error => {
+    console.warn('You are offline or the API is down. Loading cached data...');
+    
+    // --- NEW: Fallback to LocalStorage ---
+    const cachedData = localStorage.getItem('cachedDashboardData');
+    if (cachedData) {
+      const data = JSON.parse(cachedData);
+      processAndDisplayData(data);
+    } else {
+      document.getElementById('error').textContent = "No internet and no cached data found.";
+    }
+  });
+}
+
+function processAndDisplayData(data) {
+   if (!data) return;
+   // Display all the user data
+   transactions = data.transaction;
     
    // Extract the transactions and filter them to only include "project" types
-   projectTransactionsData = result.data.transaction
+   projectTransactionsData = data.transaction
      .filter(transaction => transaction.object.type === 'project');
    // debug print
    // console.log("Project Transactions:", projectTransactionsData);
     
-    displayUserInfo(result.data.user);
-    displayOnProgressInfo(result.data.user,result.data.progress);
+    displayUserInfo(data.user);
+    displayOnProgressInfo(data.user,data.progress);
     // debug print
     // displayOnProgressInfo(userTest,progress)
     displayXPInfo(projectTransactionsData);
@@ -141,13 +148,7 @@ function graphqlQuery(token) {
     displaySkillInfo(projectTransactionsData,transactions);
     displayXPLineChart(projectTransactionsData);
     displayXPBarChart(projectTransactionsData);
-    
-  })
-  .catch(error => {
-    console.error(error);
-  });
-}
-
+};
 
 
 function displayUserInfo(data) {
@@ -197,9 +198,6 @@ function displayOnProgressInfo(user, progress) {
     `;
     projectsContainer.appendChild(noProjectsItem);
   } else {
-    
-
-    
     // Check all current projects and display one by one, also check how many group also working on that project
     allCurrentWorkingProjects.forEach(prog => {
         const currentProject = prog.object.name;
@@ -863,12 +861,12 @@ function displayXPBarChart(transactions){
    
    //console.log("Bar Chart Data before filtering:", barChartData); // Debug statement
    // Filter data based on the selected language
-    selectedData = filterDataByCategory(barChartData,  selectedCategory);
+    barChartSelectedData = filterDataByCategory(barChartData,  selectedCategory);
     
     // debug print
    //console.log("Selected Data after filtering:", selectedData);
  
-   generateXPBarChart(selectedData,selectedCategory);
+   generateXPBarChart(barChartSelectedData,selectedCategory);
 }
 
 function generateXPBarChart(selectedData,selectedCategory ) {
@@ -1153,12 +1151,12 @@ function displaySkillInfo(projectTransactionsData,transactions) {
   skillTypeTitle.textContent = titleText;
   
   // Filter data based on the selected language
-  selectedData = filterDataBySkills(skillsRadarData, selectedTypeOfSkills);
+  radarChartSelectedData = filterDataBySkills(skillsRadarData, selectedTypeOfSkills);
   
   // debug print
-  // console.log("selected data:", selectedData);
+  // console.log("selected data:", radarChartSelectedData);
       
-  generateSkillsRadarChart(selectedData,selectedTypeOfSkills)
+  generateSkillsRadarChart(radarChartSelectedData,selectedTypeOfSkills)
 }
 
 // Event listener for skill type selection change
@@ -1471,11 +1469,17 @@ function logout() {
 }
 
 function handleResize() {
- //generate those svg again after resize
- generateAuditLine(upLineData,downLineData);
- generateSkillsRadarChart(skillsRadarData);
- generateLineChart(lineChartData);
- generateXPBarChart(selectedData);
+  // Generate static SVGs
+  generateAuditLine(upLineData,downLineData);
+  generateLineChart(lineChartData);
+ 
+  // Safely grab current dropdown values with fallbacks
+  const currentSkillType = document.getElementById('skillTypeSelected').value || 'Technical_skills';
+  const currentCategory = document.getElementById('categorySelected').value || 'Go';
+
+  // Re-render using specifically scoped data
+  generateSkillsRadarChart(radarChartSelectedData, currentSkillType);
+  generateXPBarChart(barChartSelectedData, currentCategory);
 }
 
 
