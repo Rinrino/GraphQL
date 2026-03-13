@@ -16,7 +16,7 @@
   
       <input type="password" id="password" placeholder="Enter Password" name="password" required >
         
-      <button type="button" onclick="login()">Login</button>
+      <button type="button" id="login-btn">Login</button>
       <div class="remember-me-container">
         <input type="checkbox" id="remember-me" name="rememberMe">
         <label for="remember-me">Remember Me</label>
@@ -29,7 +29,7 @@
   <!-- XP board -->
   <div id="xpDetailOverlay" class="xp-overlay" style="display:none;">
     <div class="xp-overlay-content card">
-      <span class="close-btn" onclick="closeXPOverlay()">&times;</span>
+      <span class="close-btn" id="close-xp-overlay-btn">&times;</span>
       <div id="xpDetailContent">
         <h2>XP Board</h2>
         <ul id="allProjectList"></ul>
@@ -40,7 +40,7 @@
   <!-- group detail Overlay container -->
    <div id="groupDetailsOverlay" class="overlay">
     <div class="overlay-content card">
-      <span class="close-btn" onclick="closeOverlay()">&times;</span>
+      <span class="close-btn" id="close-overlay-btn">&times;</span>
       <div id="groupDetailsContent"></div>
     </div>
   </div>
@@ -64,15 +64,15 @@
           </div>
       </div>
       <div >
-        <button class="logout-button" type="button" onclick="logout()">Logout</button>
+        <button class="logout-button" type="button" id="logout-btn">Logout</button>
       </div>
     </div>
     
       <!-- header -->
       <div class="header">
         <h1>Welcome to Your Dashboard, <span class="f-ms20 f-cb" id="userLoginName"></span></h1>
-        <div >
-          <button class="logout-button2"  type="button" onclick="logout()">Logout</button>
+        <div>
+          <button class="logout-button2" type="button" id="logout-btn-header">Logout</button>
         </div>
       </div>
       
@@ -186,7 +186,7 @@
   </div> <!-- end of container -->
  
   
-  <script  src="App.js"></script>
+  <script type="module" src="main.js"></script>
   <!-- library for svg -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
 </body>
