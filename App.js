@@ -1,5 +1,32 @@
-// data for resizing 
-let lineChartData,transactions,projectTransactionsData,barChartSelectedData,radarChartSelectedData,upLineData,downLineData,skillsRadarData,loggedUser;
+const appState = {
+  // Raw data straight from GraphQL
+  data: {
+    transactions: [],
+    projectTransactions: [],
+  },
+  
+  // Data specifically formatted for D3
+  charts: {
+    lineData: null,
+    barData: null,
+    radarData: null,
+    audit: {
+      up: null,
+      down: null
+    }
+  },
+
+  // Active user selections
+  filters: {
+    skillType: 'Technical_skills',
+    category: 'Go'
+  },
+
+  // Logged in user info
+  user: {
+    login: null
+  }
+};
 
 document.addEventListener('DOMContentLoaded', function () {
   const jwtToken = localStorage.getItem('jwt') || sessionStorage.getItem('jwt');
@@ -153,10 +180,10 @@ function graphqlQuery(token) {
 function processAndDisplayData(data) {
    if (!data) return;
    // Display all the user data
-   transactions = data.transaction;
+   appState.data.transactions = data.transaction;
     
    // Extract the transactions and filter them to only include "project" types
-   projectTransactionsData = data.transaction
+   appState.data.projectTransactions = data.transaction
      .filter(transaction => transaction.object.type === 'project');
    // debug print
    // console.log("Project Transactions:", projectTransactionsData);
@@ -165,17 +192,17 @@ function processAndDisplayData(data) {
     displayOnProgressInfo(data.user,data.progress);
     // debug print
     // displayOnProgressInfo(userTest,progress)
-    displayXPInfo(projectTransactionsData);
-    displayAuditInfo(projectTransactionsData);
-    displaySkillInfo(projectTransactionsData,transactions);
-    displayXPLineChart(projectTransactionsData);
-    displayXPBarChart(projectTransactionsData);
+   displayXPInfo(appState.data.projectTransactions);
+   displayAuditInfo(appState.data.projectTransactions);
+   displaySkillInfo(appState.data.projectTransactions, appState.data.transactions);
+   displayXPLineChart(appState.data.projectTransactions);
+   displayXPBarChart(appState.data.projectTransactions);
 };
 
 
 function displayUserInfo(data) {
   const user = data[0]
-  loggedUser = user.login;
+  appState.user.login = user.login;
 
   //document.getElementById('firstName').textContent = user.attrs.firstName;
   document.getElementById('userLoginName').textContent = user.login;
@@ -191,12 +218,10 @@ function displayUserInfo(data) {
 }
 
 function displayOnProgressInfo(user, progress) {
-  const userLogin = user[0].login;
-
   // Filter projects where the user is in a group with status "working"
   const allCurrentWorkingProjects = progress.filter(prog =>
       prog.object.groups.some(group =>
-          group.status === "working" && group.members.some(member => member.userLogin === userLogin)
+          group.status === "working" && group.members.some(member => member.userLogin === appState.user.login)
       )
   );
   // debug print
@@ -245,14 +270,14 @@ function displayOnProgressInfo(user, progress) {
 
         // Filter groups where the logged-in user is a member and group status is "working"
         const groupData = prog.object.groups.filter(group =>
-            group.status === "working" && group.members.some(member => member.userLogin === userLogin)
+            group.status === "working" && group.members.some(member => member.userLogin === appState.user.login)
         );
 
         // Extract and flatten the members array
         const members = groupData.flatMap(group => group.members);
 
         // Exclude the logged-in user
-        const membersExcludingUser = members.filter(member => member.userLogin !== userLogin);
+        const membersExcludingUser = members.filter(member => member.userLogin !== appState.user.login);
 
         // Handle members
         let memberNames = '';
@@ -412,7 +437,7 @@ function displayXPInfo(transactions){
 
 document.querySelector('.link-more').addEventListener('click', (event) => {
   event.preventDefault(); // Prevent default link behavior
-  showXPDetailOverlay(projectTransactionsData);
+  showXPDetailOverlay(appState.data.projectTransactions);
 });
 
 function showXPDetailOverlay(transactions) {
@@ -449,7 +474,7 @@ function showXPDetailOverlay(transactions) {
       const formattedTime = formattedTimeStringFrom(finishedDate);
      
       const projectPath = `${baseUrl}${encodeURI(project.path)}`;
-      const repoPath = `${repoBaseUrl}/${encodeURI(loggedUser)}/${encodeURI(project.object.name)}`;
+      const repoPath = `${repoBaseUrl}/${encodeURI(appState.user.login)}/${encodeURI(project.object.name)}`;
       
       
       
@@ -525,9 +550,9 @@ function displayAuditInfo(transactions){
   document.getElementById('totalDown').textContent = formatNumber(totalDown);
   document.getElementById('status').textContent = status;
   
-  upLineData = totalUp;
-  downLineData = totalDown;
-  generateAuditLine(upLineData,downLineData);
+  appState.charts.audit.up = totalUp;
+  appState.charts.audit.down = totalDown;
+  generateAuditLine(appState.charts.audit.up,appState.charts.audit.down);
 }
 
 function generateAuditLine(upLineData,downLineData) {
@@ -605,7 +630,7 @@ function generateAuditLine(upLineData,downLineData) {
 
 function displayXPLineChart(transactions) {
   // Extracting data for the line chart
-  lineChartData = transactions
+  appState.charts.lineData = transactions
   /*TODO:CHECK MORE FILTER XP OR NOT*/
    .filter((transaction) => transaction.type === 'xp')  
     .map((transaction) => ({
@@ -618,7 +643,7 @@ function displayXPLineChart(transactions) {
     // debug print
     //console.log("linechat data=>",lineChartData)
     //xpTimeChartData =lineChartData
-    generateLineChart(lineChartData);
+    generateLineChart(appState.charts.lineData);
 }
 
 function generateLineChart(lineChartData ) {
@@ -883,7 +908,7 @@ function displayXPBarChart(transactions){
   // debug print
   // console.log("all bar chart data:",transactions)
   
-  barChartData = transactions
+  const barChartData = transactions
   .filter((transaction) => transaction.type === 'xp')
   .map((transaction) => ({
     project: transaction.object.name,
@@ -898,12 +923,12 @@ function displayXPBarChart(transactions){
    
    //console.log("Bar Chart Data before filtering:", barChartData); // Debug statement
    // Filter data based on the selected language
-    barChartSelectedData = filterDataByCategory(barChartData,  selectedCategory);
+    appState.charts.barData = filterDataByCategory(barChartData,  selectedCategory);
     
     // debug print
    //console.log("Selected Data after filtering:", selectedData);
  
-   generateXPBarChart(barChartSelectedData,selectedCategory);
+   generateXPBarChart(appState.charts.barData,selectedCategory);
 }
 
 function generateXPBarChart(selectedData,selectedCategory ) {
@@ -1015,7 +1040,7 @@ function generateXPBarChart(selectedData,selectedCategory ) {
 // Event listener for language selection change
 document.getElementById('categorySelected').addEventListener('change', () => {
   // Re-display the bar chart with the newly selected language
-  displayXPBarChart(projectTransactionsData); // Ensure `transactions` data is available in the scope
+  displayXPBarChart(appState.data.projectTransactions);
 });
 
 
@@ -1161,7 +1186,7 @@ function displaySkillInfo(projectTransactionsData,transactions) {
 
   // Debug print
   // console.log("highest amount by skill =======>", highestAmountBySkill);
-  skillsRadarData = highestAmountBySkill;
+  const skillsRadarData = highestAmountBySkill;
   
     // debug print
   // console.log("skillsRadarData:",skillsRadarData);
@@ -1188,18 +1213,18 @@ function displaySkillInfo(projectTransactionsData,transactions) {
   skillTypeTitle.textContent = titleText;
   
   // Filter data based on the selected language
-  radarChartSelectedData = filterDataBySkills(skillsRadarData, selectedTypeOfSkills);
+  appState.charts.radarData = filterDataBySkills(skillsRadarData, selectedTypeOfSkills);
   
   // debug print
   // console.log("selected data:", radarChartSelectedData);
       
-  generateSkillsRadarChart(radarChartSelectedData,selectedTypeOfSkills)
+  generateSkillsRadarChart(appState.charts.radarData, selectedTypeOfSkills);
 }
 
 // Event listener for skill type selection change
 document.getElementById('skillTypeSelected').addEventListener('change', () => {
   // Re-display the radar chart with the newly selected skill type
-  displaySkillInfo(projectTransactionsData,transactions);
+  displaySkillInfo(appState.data.projectTransactions, appState.data.transactions);
 });
    
 function generateSkillsRadarChart(skillsRadarData,selectedTypeOfSkills) {
@@ -1507,16 +1532,16 @@ function logout() {
 
 function handleResize() {
   // Generate static SVGs
-  generateAuditLine(upLineData,downLineData);
-  generateLineChart(lineChartData);
+  generateAuditLine(appState.charts.audit.up,appState.charts.audit.down);
+  generateLineChart(appState.charts.lineData);
  
   // Safely grab current dropdown values with fallbacks
   const currentSkillType = document.getElementById('skillTypeSelected').value || 'Technical_skills';
   const currentCategory = document.getElementById('categorySelected').value || 'Go';
 
   // Re-render using specifically scoped data
-  generateSkillsRadarChart(radarChartSelectedData, currentSkillType);
-  generateXPBarChart(barChartSelectedData, currentCategory);
+  generateSkillsRadarChart(appState.charts.radarData, currentSkillType);
+  generateXPBarChart(appState.charts.barData, currentCategory);
 }
 
 
