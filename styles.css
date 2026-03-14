@@ -545,8 +545,9 @@ button:hover {
 #radarChartContainer {
   display: flex;
   flex-direction: column;
-  text-align: left;
   align-items: center;
+  width: 100%;       
+  min-height: 300px; 
 }
 
 

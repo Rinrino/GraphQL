@@ -365,10 +365,10 @@ export function generateSkillsRadarChart(skillsRadarData,selectedTypeOfSkills) {
   
    // Set up scales with dynamic dimensions based on parent div
    const parentDiv = document.getElementById('radarChartContainer');
-   const width = parentDiv.clientWidth;
+   const width = parentDiv.clientWidth || 400; 
    const height = width;
-   const margin = 100;
-   const radius = Math.min(width, height) / 2 - margin;
+   const margin = 50; 
+   const radius = Math.max(0, (Math.min(width, height) / 2) - margin);
   
   
   // Clear existing SVG content
