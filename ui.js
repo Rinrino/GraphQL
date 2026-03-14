@@ -232,26 +232,25 @@ export function closeOverlay() {
   document.getElementById('groupDetailsOverlay').style.display = 'none';
 }
 
-
 export function displayXPInfo(transactions){
   const totalXp = transactions
-  .filter((transaction) => transaction.type === 'xp')
-  .reduce((sum, transaction) => sum + transaction.amount, 0);
+    .filter((transaction) => transaction.type === 'xp')
+    .reduce((sum, transaction) => sum + transaction.amount, 0);
 
   document.getElementById('totalXp').textContent = formatNumber(totalXp);
 
   const projectsList = document.getElementById('project-list');
   
-  // Clear the existing list items
-  projectsList.innerHTML = '';
-  
-  transactions
-    .filter((transaction) => transaction.type === 'xp')
-    .slice(0, 5).forEach((project) => {
-      const projectItem = document.createElement('li');
-      projectItem.textContent =`${project.object.name} - ${formatNumber(project.amount)}`;
-      projectsList.appendChild(projectItem);
-  });
+  // 2. Filter for XP transactions and take the top 5
+  const xpTransactions = transactions.filter((t) => t.type === 'xp').slice(0, 5);
+
+  projectsList.innerHTML = `
+    <ul>
+      ${xpTransactions.map(project => `
+        <li>${project.object.name} - ${formatNumber(project.amount)}</li>
+      `).join('')}
+    </ul>
+  `;
 }
 
 export function showXPDetailOverlay(transactions) {

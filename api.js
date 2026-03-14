@@ -111,12 +111,10 @@ export function login(username, password) {
 }
 
 export function logout() {
-  // Remove the token and username from localStorage or sessionStorage
   localStorage.removeItem('jwt');
-  localStorage.removeItem('username');
-  sessionStorage.removeItem('jwt');
+  localStorage.removeItem('cachedDashboardData');
+  sessionStorage.clear(); 
 
-  // Show login form and hide dashboard
   document.getElementById('loginContainer').style.display = 'block';
   document.getElementById('dashboardContainer').style.display = 'none';
   document.getElementById('error').innerHTML = '';

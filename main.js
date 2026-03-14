@@ -31,25 +31,25 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // 2. JWT Check logic...
-  const jwtToken = localStorage.getItem('jwt') || sessionStorage.getItem('jwt');
-  
-  if(jwtToken){
+  const token = localStorage.getItem('jwt') || sessionStorage.getItem('jwt');
+  const isRemembered = !!localStorage.getItem('jwt'); 
+
+  if (token) {
     displayDashboard();
-    graphqlQuery(jwtToken)
+    graphqlQuery(token)
       .then(data => {
-  
-        // --- Success:  save data for offline use and render ---
-        localStorage.setItem('cachedDashboardData', JSON.stringify(data));
+        // --- Success: Choose the right storage for the cache ---
+        const storage = isRemembered ? localStorage : sessionStorage;
+        storage.setItem('cachedDashboardData', JSON.stringify(data));
         processAndDisplayData(data);
       })
       .catch(error => {
-        //--- Fail: Fallback to LocalStorage ---
-        console.warn('API error or offline. Loading cached data...', error.message);
-        const cachedData = localStorage.getItem('cachedDashboardData');
+        // --- Fail: Check both storages for cache ---
+        const cachedData = localStorage.getItem('cachedDashboardData') || sessionStorage.getItem('cachedDashboardData');
         if (cachedData) {
           processAndDisplayData(JSON.parse(cachedData));
         } else {
-          document.getElementById('error').textContent = error.message || "No internet and no cached data found.";
+          document.getElementById('error').textContent = "Connection error. Please log in again.";
         }
       });
   } else {
@@ -104,23 +104,24 @@ async function handleLogin() {
   const rememberMe = document.getElementById('remember-me').checked;
 
   try {
-    const token = await login(username, password); // Wait for api.js
+    const token = await login(username, password);
     
-    // 1. Save Token
     if (rememberMe) {
       localStorage.setItem('jwt', token);
       localStorage.setItem('username', username);
     } else {
       sessionStorage.setItem('jwt', token);
+      
+      localStorage.removeItem('username'); 
+      localStorage.removeItem('jwt'); 
     }
 
-    // 2. Clear errors and swap UI
     document.getElementById('error').innerHTML = '';
-    displayDashboard(); // This works now because it's in the same file!
+    displayDashboard();
 
-    // 3. Get Data
     const data = await graphqlQuery(token);
-    localStorage.setItem('cachedDashboardData', JSON.stringify(data));
+    const storage = rememberMe ? localStorage : sessionStorage;
+    storage.setItem('cachedDashboardData', JSON.stringify(data));
     processAndDisplayData(data);
     
   } catch (error) {
